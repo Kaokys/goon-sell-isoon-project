@@ -13,6 +13,10 @@ npm run dev
 
 เปิด http://localhost:3000 ระบบจะสร้าง PostgreSQL แบบฝังตัวด้วย PGlite ใน `.data/postgres` ให้อัตโนมัติ ข้อมูลยังอยู่หลังปิดและเปิดโปรแกรมใหม่ ห้ามเปิดหลายโปรเซสกับโฟลเดอร์ฐานข้อมูลเดียวกัน
 
+### Google Login
+
+สร้าง OAuth 2.0 Client ชนิด **Web application** ใน Google Cloud Console แล้วตั้ง Authorized redirect URI เป็น `http://localhost:3000/api/auth/google/callback` สำหรับเครื่อง และ `https://โดเมน-vercel/api/auth/google/callback` สำหรับ Production จากนั้นใส่ `GOOGLE_CLIENT_ID` และ `GOOGLE_CLIENT_SECRET` ใน `.env.local` หรือ Vercel Environment Variables ผู้ใช้ Google ใหม่จะถูกสร้างเป็น `customer` และอีเมลต้องผ่านการยืนยันจาก Google
+
 | บทบาท | อีเมลทดลอง | รหัสผ่าน |
 |---|---|---|
 | Admin | admin@demo.local | ArtDemo2026! |

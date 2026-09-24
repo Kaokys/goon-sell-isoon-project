@@ -35,7 +35,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     if(resource==='payment_options')return json(paymentOptions());
     if(resource==='addresses')return await addressHandler(req,db,id);
 
-    if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!process.env.DATABASE_URL && !process.env.VERCEL,paymentConfigured:!!process.env.PROMPTPAY_ID}); }
+    if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!process.env.DATABASE_URL && !process.env.VERCEL,paymentConfigured:!!process.env.PROMPTPAY_ID,googleConfigured:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)}); }
     if (resource==='auth' && method==='POST') {
       if (id==='logout') { const token=(await cookies()).get('sillapa_session')?.value; if(token) await db.query('DELETE FROM art.sessions WHERE token_hash=$1',[digest(token)]); (await cookies()).delete('sillapa_session'); return json({ok:true}); }
       const data = (id==='register'?registerSchema:loginSchema).parse(await body(req));

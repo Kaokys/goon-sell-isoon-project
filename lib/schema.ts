@@ -54,6 +54,8 @@ CREATE INDEX IF NOT EXISTS art_artworks_listing ON art.artworks(status,deleted,c
 CREATE INDEX IF NOT EXISTS art_orders_customer ON art.orders(customer_id,created_at);
 CREATE INDEX IF NOT EXISTS art_audit_created ON art.audit_logs(created_at);
 CREATE INDEX IF NOT EXISTS art_sessions_expiry ON art.sessions(expires_at);
+ALTER TABLE art.users ADD COLUMN IF NOT EXISTS google_sub TEXT;
+CREATE UNIQUE INDEX IF NOT EXISTS art_users_google_sub ON art.users(google_sub) WHERE google_sub IS NOT NULL;
 -- Application tables live outside Supabase's exposed public schema.
 REVOKE ALL ON SCHEMA art FROM PUBLIC;
 `;
