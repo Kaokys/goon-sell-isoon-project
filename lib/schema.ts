@@ -39,6 +39,17 @@ CREATE TABLE IF NOT EXISTS art.audit_logs (
  entity_type TEXT NOT NULL, entity_id TEXT NOT NULL, details JSONB NOT NULL DEFAULT '{}', created_at TIMESTAMPTZ DEFAULT now()
 );
 CREATE TABLE IF NOT EXISTS art.rate_limits (key TEXT PRIMARY KEY, hits INTEGER NOT NULL, expires_at TIMESTAMPTZ NOT NULL);
+CREATE TABLE IF NOT EXISTS art.addresses (
+ id TEXT PRIMARY KEY, user_id TEXT NOT NULL REFERENCES art.users(id), recipient TEXT NOT NULL, phone TEXT NOT NULL,
+ line1 TEXT NOT NULL, province TEXT NOT NULL, district TEXT NOT NULL, subdistrict TEXT NOT NULL, postcode TEXT NOT NULL,
+ label TEXT NOT NULL DEFAULT 'home' CHECK(label IN ('home','work','other')), is_default BOOLEAN NOT NULL DEFAULT false,
+ created_at TIMESTAMPTZ DEFAULT now(), updated_at TIMESTAMPTZ DEFAULT now()
+);
+CREATE INDEX IF NOT EXISTS art_addresses_owner ON art.addresses(user_id);
+CREATE UNIQUE INDEX IF NOT EXISTS art_addresses_default ON art.addresses(user_id) WHERE is_default=true;
+ALTER TABLE art.orders ADD COLUMN IF NOT EXISTS payment_method TEXT NOT NULL DEFAULT 'promptpay' CHECK(payment_method IN ('promptpay','bank_transfer'));
+ALTER TABLE art.orders ADD COLUMN IF NOT EXISTS buyer_note TEXT NOT NULL DEFAULT '';
+ALTER TABLE art.orders ADD COLUMN IF NOT EXISTS shipping_fee INTEGER NOT NULL DEFAULT 0 CHECK(shipping_fee>=0);
 CREATE INDEX IF NOT EXISTS art_artworks_listing ON art.artworks(status,deleted,created_at);
 CREATE INDEX IF NOT EXISTS art_orders_customer ON art.orders(customer_id,created_at);
 CREATE INDEX IF NOT EXISTS art_audit_created ON art.audit_logs(created_at);

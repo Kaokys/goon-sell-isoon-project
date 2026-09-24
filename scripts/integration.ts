@@ -59,6 +59,26 @@ async function main(){
  const extraIds=[];for(let i=0;i<7;i++){const a=await artist.request('artworks','POST',{...art,title:`Pagination artwork ${i}`},201);extraIds.push(a.id);await admin.request(`artworks/${a.id}/review`,'PATCH',{status:'approved'});}
  const p1=await guest.request('artworks?page=1'),p2=await guest.request('artworks?page=2');assert.equal(p1.items.length,12);assert.ok(p2.items.length>0);assert.equal(p1.items.some((a:any)=>p2.items.some((b:any)=>b.id===a.id)),false);
  pass('Search, category/price filters, price sort and non-overlapping pagination');
+ const location=await guest.request('geography?province='+encodeURIComponent('ขอนแก่น')+'&district='+encodeURIComponent('เมืองขอนแก่น')+'&subdistrict='+encodeURIComponent('ในเมือง'));
+ assert.ok(location.postcodes.includes('40000'));assert.equal((await guest.request('geography')).provinces.length,77);
+ await guest.request('addresses','GET',undefined,401);
+ const addressValue={recipient:'Saved Recipient',phone:'0812345678',line1:'123 ถนนมิตรภาพ',province:'ขอนแก่น',district:'เมืองขอนแก่น',subdistrict:'ในเมือง',postcode:'40000',label:'home',is_default:false};
+ await customer.request('addresses','POST',{...addressValue,postcode:'99999'},400);
+ const saved=await customer.request('addresses','POST',addressValue,201);assert.equal((await customer.request('addresses')).items[0].is_default,true);
+ const second=await customer.request('addresses','POST',{...addressValue,line1:'456 ถนนทดสอบ',label:'work',is_default:true},201);
+ let savedList=(await customer.request('addresses')).items;assert.equal(savedList.filter((a:any)=>a.is_default).length,1);assert.equal(savedList[0].id,second.id);
+ assert.equal((await other.request('addresses')).items.length,0);
+ await other.request(`addresses/${saved.id}`,'PATCH',addressValue,404);await other.request(`addresses/${saved.id}`,'DELETE',undefined,404);
+ const addressOrder={artwork_ids:[extraIds[1]],address_id:saved.id,payment_method:'bank_transfer',buyer_note:'Please protect the frame.',idempotency_key:randomUUID(),total:1,shipping_fee:999999};
+ await other.request('orders','POST',addressOrder,404);
+ await customer.request('orders','POST',{...addressOrder,payment_method:'credit_card'},400);
+ const bankOrder=await customer.request('orders','POST',addressOrder,201);
+ await customer.request(`addresses/${saved.id}`,'PATCH',{...addressValue,line1:'789 Changed street'});
+ const bankDetail=await customer.request(`orders/${bankOrder.id}`);assert.equal(bankDetail.order.payment_method,'bank_transfer');assert.equal(bankDetail.qr,null);assert.equal(bankDetail.order.recipient,'Saved Recipient');assert.match(bankDetail.order.address,/123/);assert.equal(bankDetail.order.shipping_fee,0);assert.equal(bankDetail.order.total,123456);assert.equal(bankDetail.order.buyer_note,'Please protect the frame.');
+ await customer.request(`orders/${bankOrder.id}/status`,'PATCH',{status:'cancelled'});
+ await customer.request(`addresses/${second.id}`,'DELETE');savedList=(await customer.request('addresses')).items;assert.equal(savedList.length,1);assert.equal(savedList[0].is_default,true);
+ pass('Saved addresses: Thai geography validation, ownership, one default, deletion fallback and immutable order snapshot');
+ pass('Checkout stores bank payment and buyer note; server controls shipping/total and rejects unsupported payment');
  const orderInput={artwork_ids:[id],recipient:'Integration Recipient',phone:'0812345678',address:'123 Test Road, Bangkok 10100, Thailand',idempotency_key:randomUUID(),total:1};
  const order=await customer.request('orders','POST',orderInput,201);
  assert.equal((await customer.request('orders','POST',orderInput)).id,order.id);

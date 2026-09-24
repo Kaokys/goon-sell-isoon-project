@@ -5,6 +5,7 @@ import sharp from 'sharp';
 import QRCode from 'qrcode';
 import generatePayload from 'promptpay-qr';
 import { ZodError, z } from 'zod';
+import { addressHandler, geography, paymentOptions, formatAddress } from '@/lib/checkout';
 import { getDB, audit, type DB } from '@/lib/db';
 import { AppError, sessionUser, requireUser, publicUser, createSession, digest, rateLimit, checkOrigin } from '@/lib/auth';
 import { hashPassword, verifyPassword } from '@/lib/password';
@@ -27,9 +28,12 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     const method = req.method;
     const url = new URL(req.url);
     if (method!=='GET') checkOrigin(req);
-    const methods:Record<string,string[]>= {session:['GET'],auth:['POST'],profile:['PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
+    const methods:Record<string,string[]>= {addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
     if(!methods[resource]?.includes(method))throw new AppError(405,'ไม่รองรับวิธีเรียกใช้งานนี้');
     const db = await getDB();
+    if(resource==='geography')return json(geography(url));
+    if(resource==='payment_options')return json(paymentOptions());
+    if(resource==='addresses')return await addressHandler(req,db,id);
 
     if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!process.env.DATABASE_URL && !process.env.VERCEL,paymentConfigured:!!process.env.PROMPTPAY_ID}); }
     if (resource==='auth' && method==='POST') {
@@ -126,10 +130,13 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
         return await db.transaction(async tx=>{
           await tx.query('SELECT id FROM art.users WHERE id=$1 FOR UPDATE',[user.id]);
           const [existing]=await tx.query('SELECT id FROM art.orders WHERE customer_id=$1 AND idempotency_key=$2',[user.id,v.idempotency_key]);if(existing)return json({id:existing.id});
+          let recipient=v.recipient,phone=v.phone,address=v.address;
+          if(v.address_id){const [saved]=await tx.query('SELECT * FROM art.addresses WHERE id=$1 AND user_id=$2',[v.address_id,user.id]);if(!saved)throw new AppError(404,'ไม่พบที่อยู่จัดส่ง');recipient=saved.recipient;phone=saved.phone;address=formatAddress(saved);}
+          if(!paymentOptions().methods.find(m=>m.id===v.payment_method)?.enabled)throw new AppError(400,'ร้านยังไม่ได้เปิดใช้วิธีชำระเงินนี้');
           const items=[];
           for(const key of [...v.artwork_ids].sort()) {const [art]=await tx.query('SELECT a.* FROM art.artworks a JOIN art.users u ON u.id=a.artist_id WHERE a.id=$1 AND a.deleted=false AND u.active=true FOR UPDATE OF a',[key]);if(!art || art.status!=='approved')throw new AppError(409,'มีผลงานที่ขายแล้วหรือถูกจอง กรุณาตรวจตะกร้าอีกครั้ง');if(art.artist_id===user.id)throw new AppError(400,'ไม่สามารถซื้อผลงานของตนเอง');items.push(art);}
           const key=randomUUID();const total=items.reduce((sum,a)=>sum+a.price,0);
-          await tx.query('INSERT INTO art.orders(id,customer_id,total,recipient,phone,address,idempotency_key) VALUES($1,$2,$3,$4,$5,$6,$7)',[key,user.id,total,v.recipient,v.phone,v.address,v.idempotency_key]);
+          await tx.query('INSERT INTO art.orders(id,customer_id,total,recipient,phone,address,idempotency_key,payment_method,buyer_note) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9)',[key,user.id,total,recipient,phone,address,v.idempotency_key,v.payment_method,v.buyer_note]);
           for(const art of items){await tx.query('INSERT INTO art.order_items(order_id,artwork_id,title,price,image,artist_id) VALUES($1,$2,$3,$4,$5,$6)',[key,art.id,art.title,art.price,art.image,art.artist_id]);await tx.query(`UPDATE art.artworks SET status='reserved',updated_at=now() WHERE id=$1`,[art.id]);}
           await audit(tx,user.id,'create','order',key,{total,items:items.map(a=>a.id)});return json({id:key},201);
         });
@@ -143,7 +150,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
         const [count]=await db.query(`SELECT COUNT(*)::int AS total FROM art.orders o WHERE ${where}`,values);
         const orders=await db.query(`SELECT o.*,u.name AS customer_name FROM art.orders o JOIN art.users u ON u.id=o.customer_id WHERE ${where} ORDER BY o.created_at DESC LIMIT ${size} OFFSET ${(page-1)*size}`,values);
         for(const order of orders)order.items=await db.query('SELECT * FROM art.order_items WHERE order_id=$1',[order.id]);
-        if(id){if(!orders[0])throw new AppError(404,'ไม่พบคำสั่งซื้อ');let qr=null;const pp=process.env.PROMPTPAY_ID;if(pp && /^(0\d{9}|\d{13})$/.test(pp))qr=await QRCode.toDataURL(generatePayload(pp,{amount:orders[0].total/100}),{width:360,margin:2});return json({order:orders[0],qr,paymentName:process.env.PROMPTPAY_NAME||'',paymentId:pp||'',demo:!process.env.DATABASE_URL});}
+        if(id){if(!orders[0])throw new AppError(404,'ไม่พบคำสั่งซื้อ');let qr=null;const pp=process.env.PROMPTPAY_ID;if(orders[0].payment_method==="promptpay" && pp && /^(0\d{9}|\d{13})$/.test(pp))qr=await QRCode.toDataURL(generatePayload(pp,{amount:orders[0].total/100}),{width:360,margin:2});return json({order:orders[0],qr,paymentName:process.env.PROMPTPAY_NAME||'',paymentId:pp||'',bank:{name:process.env.BANK_NAME||'',accountName:process.env.BANK_ACCOUNT_NAME||'',accountNumber:process.env.BANK_ACCOUNT_NUMBER||''},demo:!process.env.DATABASE_URL});}
         return json({items:orders,total:count.total,page,pages:Math.ceil(count.total/size)});
       }
       return await db.transaction(async tx=>{

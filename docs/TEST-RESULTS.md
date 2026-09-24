@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-09-24T06:29:47.004Z
+Executed: 2026-09-24T06:51:31.933Z
 
 Production Next.js server with isolated persistent PostgreSQL (PGlite) database. No live payment sent.
 
@@ -12,6 +12,8 @@ Production Next.js server with isolated persistent PostgreSQL (PGlite) database.
 - PASS: Uploads validate actual image bytes, size/type and uploader role; drafts stay private
 - PASS: Artwork/category CRUD, validation, review and draft-to-public transitions
 - PASS: Search, category/price filters, price sort and non-overlapping pagination
+- PASS: Saved addresses: Thai geography validation, ownership, one default, deletion fallback and immutable order snapshot
+- PASS: Checkout stores bank payment and buyer note; server controls shipping/total and rejects unsupported payment
 - PASS: Checkout computes price on server; idempotency, reservation and private orders enforced
 - PASS: Private slips, rejection/re-upload, admin-only payment confirmation and shipping workflow
 - PASS: Concurrent purchases have exactly one winner; cancellation releases inventory
@@ -20,4 +22,4 @@ Production Next.js server with isolated persistent PostgreSQL (PGlite) database.
 - PASS: Artwork soft deletion and unused category deletion
 - PASS: Logout invalidates server-side session
 
-15 groups passed. Remote Supabase connectivity and Vercel deployment are not covered without owner credentials.
+17 groups passed. Remote Supabase connectivity and Vercel deployment are not covered without owner credentials.

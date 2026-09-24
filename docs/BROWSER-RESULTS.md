@@ -1,11 +1,13 @@
 # Browser verification
 
-Executed: 2026-09-24T06:31:34.785Z
+Executed: 2026-09-24T11:14:31.759Z
 
 Microsoft Edge via Playwright, isolated production server/database; no actual payment.
 
 - PASS: Gallery search, reset and sorting operate in the browser
 - PASS: Mobile gallery fits 390px width and filters can be expanded
+- PASS: New non-default address stays selected; address picker works; default address persists after reload
+- PASS: Checkout saves a structured Thai address, fills postcode, selects payment and fits mobile
 - PASS: Customer logs in, adds an artwork, checks out and uploads a slip
 - PASS: Admin confirms payment and shipping; customer completes receipt
 - PASS: Dashboard reflects the paid order and fits mobile width
