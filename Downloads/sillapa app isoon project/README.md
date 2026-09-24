@@ -1,0 +1,86 @@
+# SILLAPA — Art Marketplace
+
+เว็บขายผลงานศิลปะภาษาไทย: Next.js / React / TypeScript + PostgreSQL รองรับ Vercel และฐานข้อมูล Supabase
+
+## เริ่มใช้งานในเครื่อง
+
+ต้องใช้ Node.js 20.9 ขึ้นไป (ทดสอบด้วย Node 22)
+
+```powershell
+npm ci
+npm run dev
+```
+
+เปิด http://localhost:3000 ระบบจะสร้าง PostgreSQL แบบฝังตัวด้วย PGlite ใน `.data/postgres` ให้อัตโนมัติ ข้อมูลยังอยู่หลังปิดและเปิดโปรแกรมใหม่ ห้ามเปิดหลายโปรเซสกับโฟลเดอร์ฐานข้อมูลเดียวกัน
+
+| บทบาท | อีเมลทดลอง | รหัสผ่าน |
+|---|---|---|
+| Admin | admin@demo.local | ArtDemo2026! |
+| Staff / ศิลปิน | artist@demo.local | ArtDemo2026! |
+| Customer | customer@demo.local | ArtDemo2026! |
+
+บัญชีทดลองมีเฉพาะฐานข้อมูลในเครื่อง อย่าโอนเงินจริงในโหมดทดลอง
+
+## ฟีเจอร์ขั้นต่ำ
+
+- สมัครสมาชิกและเข้าสู่ระบบจริง: รหัสผ่าน scrypt, session token แบบสุ่ม เก็บเฉพาะ hash ในฐานข้อมูล, HttpOnly cookie, ตรวจ Origin สำหรับการเปลี่ยนข้อมูล
+- ผู้สมัครใหม่ได้สิทธิ์ customer เท่านั้น สามารถขอสิทธิ์ศิลปินให้ admin อนุมัติได้
+- แกลเลอรีค้นหาชื่อผลงาน/ศิลปิน กรองหมวด ศิลปิน ราคา สถานะ เรียงราคา/วัน และแบ่งหน้า
+- รายละเอียดภาพ ขนาด เทคนิค ราคา สถานะ และโปรไฟล์ศิลปิน
+- CRUD ผลงานและหมวดหมู่ พร้อมตรวจข้อมูลทั้งฟอร์มและเซิร์ฟเวอร์
+- Staff จัดการได้เฉพาะผลงานของตน; Admin ตรวจอนุมัติ/ส่งกลับแก้ไขก่อนเผยแพร่ การแก้ไขผลงานจะกลับเข้าคิว
+- ตะกร้าในเบราว์เซอร์ คำสั่งซื้อจริงในฐานข้อมูล ราคาคำนวณที่เซิร์ฟเวอร์ จองสินค้าภายใน transaction พร้อม row lock และ idempotency ป้องกันการกดซ้ำ
+- PromptPay QR ตามยอดสั่งซื้อเมื่อกำหนดผู้รับจริง อัปโหลดสลิปส่วนตัว Admin ยืนยันหรือปฏิเสธพร้อมเหตุผล
+- สถานะ รอชำระ → ชำระแล้ว → จัดส่ง → สำเร็จ พร้อมเลขพัสดุและยกเลิกก่อนชำระ
+- Dashboard ยอดขายที่รับชำระแล้ว รายเดือน และรายศิลปิน
+- Audit log สำหรับการสมัคร แก้โปรไฟล์ สิทธิ์ผู้ใช้ ผลงาน หมวดหมู่ คำสั่งซื้อ สลิป และสถานะ
+- Admin ปิดใช้งานบัญชีแทนการลบเพื่อรักษาประวัติคำสั่งซื้อ
+
+## เส้นทางหลัก
+
+`/` แกลเลอรี · `/artists` ศิลปิน · `/artworks/:id` รายละเอียด · `/cart` ตะกร้า · `/orders` คำสั่งซื้อ · `/profile` โปรไฟล์ · `/studio` Dashboard · `/studio/artworks` จัดการผลงาน · `/studio/orders` จัดการออเดอร์ · `/studio/users` จัดการผู้ใช้ · `/studio/categories` หมวดหมู่ · `/studio/logs` ประวัติ
+
+## ขึ้น Vercel + Supabase
+
+1. สร้าง Supabase project แล้วเปิด **Connect → Transaction pooler** คัดลอก PostgreSQL connection string (ปกติ port 6543) ใส่รหัสผ่านฐานข้อมูลที่ URL-encode แล้ว
+2. คัดลอก `.env.example` เป็น `.env.local` และใส่ `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (อย่างน้อย 12 ตัวอักษร) ห้าม commit หรือส่งรหัสผ่านในแชต
+3. รัน `npm run db:setup` เพื่อสร้าง schema และบัญชี admin จริงก่อน deploy สคริปต์ไม่เปลี่ยนรหัสผ่านหรือยกระดับบัญชีที่มีอยู่
+4. ถ้าต้องการข้อมูลภาพสาธิตบนฐานข้อมูลว่าง ตั้ง `SEED_DEMO=true` ก่อน setup โปรไฟล์ตัวอย่างจะใช้รหัสผ่านสุ่มที่ไม่มีการเปิดเผย ไม่ใช้รหัสผ่านทดลองในเครื่อง ส่วนบัญชี admin/customer สาธิตจะถูกปิดใช้งาน
+5. นำโฟลเดอร์โปรเจกต์นี้ขึ้น Git repository แล้ว Import เข้า Vercel หรือใช้ CLI `npx vercel login` ตามด้วย `npx vercel` จากโฟลเดอร์นี้
+6. เลือก Framework **Next.js** และกำหนด Environment Variables: `DATABASE_URL`, `APP_URL` (origin จริง เช่น `https://ชื่อร้าน.vercel.app`), `PROMPTPAY_ID` (เบอร์โทร 10 หลักหรือเลขประจำตัว 13 หลักของผู้รับเงินจริง), `PROMPTPAY_NAME` อย่านำ `ADMIN_PASSWORD` หรือ `SEED_DEMO` ไปใส่ runtime บน Vercel
+7. Deploy แล้วเข้าระบบด้วย admin จริง สร้างบัญชีศิลปินและให้สิทธิ์ staff อัปโหลดผลงานและทดสอบขั้นตอนการซื้อกับข้อมูลทดสอบก่อนใช้งานจริง
+8. เมื่อเปลี่ยนโดเมน ต้องเปลี่ยน `APP_URL` ให้ตรงและ redeploy ด้วย เพราะระบบตรวจ Origin ป้องกัน CSRF สำหรับ Preview deployment ให้กำหนด URL ของ preview ให้ตรงเช่นกัน
+
+Vercel ต้องมี `DATABASE_URL` เสมอ ระบบไม่ใช้ฐานข้อมูลบนดิสก์ชั่วคราวของ serverless และไม่สร้างตารางตอนรับคำขอจริง
+
+ภาพอัปโหลดถูกตรวจสอบ/ย่อด้วย Sharp และเก็บเป็น binary ใน PostgreSQL schema `art` เช่นเดียวกับสลิป เพื่อลดขั้นตอนการตั้งค่าสำหรับโปรเจกต์นี้ ขนาดต้นฉบับไม่เกิน 3 MB; ภาพแสดงผลสูงสุด 1600px เหมาะกับงานขนาดเล็ก หากมีภาพจำนวนมากควรย้ายไฟล์ไป private Supabase Storage และคงกฎการเข้าถึงเดิม ภาพนี้ไม่ใช่ไฟล์ต้นฉบับสำหรับขายไฟล์ความละเอียดสูง
+
+ตารางทั้งหมดอยู่ใน schema `art` ที่ไม่เปิดผ่าน Supabase Data API เว็บใช้ session ของแอปเอง ไม่ได้ใช้ Supabase Auth SDK การอนุญาตเข้าถึงอยู่ที่ server API และ Supabase ใช้เป็น PostgreSQL เท่านั้น
+
+เอกสารอ้างอิง: [Next.js deployment](https://nextjs.org/docs/app/getting-started/deploying), [Supabase PostgreSQL connection](https://supabase.com/docs/guides/database/connecting-to-postgres), [Postgres.js / transaction pooler](https://supabase.com/docs/guides/database/postgres-js)
+
+## ตรวจสอบ
+
+```powershell
+npm run typecheck
+npm run build
+npm run test:integration
+npm run test:browser
+```
+
+ชุด integration เปิด production server ชั่วคราวที่ port 3100 และใช้ฐานข้อมูลทดสอบใหม่ใน `.data/tests/` ไม่เปลี่ยนข้อมูลร้านที่ port 3000
+
+ชุด browser เปิด port 3101 และใช้ Microsoft Edge ผ่าน Playwright (ตั้ง `PLAYWRIGHT_CHANNEL=chrome` ได้หากใช้ Chrome) บันทึกผลที่ `docs/BROWSER-RESULTS.md` และภาพหน้าจอที่ `docs/screenshots/` ดูผลตรวจ API ที่ `docs/TEST-RESULTS.md` การทดสอบทั้งสองต้อง build ก่อน
+
+บน Windows ดับเบิลคลิก `START-WINDOWS.cmd` เพื่อเริ่มเว็บได้ สคริปต์ติดตั้ง dependencies เฉพาะครั้งแรก จากนั้นเปิด http://localhost:3000 และปล่อยหน้าต่างคำสั่งไว้ขณะใช้งาน
+
+## ขอบเขตและสิ่งที่ยังต้องตั้งค่า
+
+- ต้องเชื่อมบัญชี Vercel และ Supabase ของเจ้าของร้านเพื่อเผยแพร่จริง
+- QR จะไม่ปรากฏจนกว่าจะตั้งผู้รับ PromptPay จริง การแนบสลิปไม่ได้ยืนยันการรับเงินโดยอัตโนมัติ
+- คำสั่งซื้อรอชำระจะจองผลงานจนกว่าจะยกเลิก ไม่มีการหมดอายุการจองอัตโนมัติในรุ่นนี้
+- ไม่มีส่งอีเมลยืนยัน/รีเซ็ตรหัสผ่าน และไม่มี gateway ตรวจสลิปอัตโนมัติ
+- ฟีเจอร์เสริมในโจทย์ (ลายน้ำ ขายไฟล์ต้นฉบับ แบ่ง commission รับงานตามสั่ง รีวิว ถูกใจ ติดตาม และแนะนำภาพ) ยังไม่รวมในรุ่นขั้นต่ำนี้
+- ภาพเริ่มต้นเป็นงานสาธารณสมบัติ/CC0 พร้อมเครดิตที่ `/credits` ชื่อสินค้า ขนาด ราคา และโปรไฟล์นักศึกษาเป็นข้อมูลสมมติ ห้ามเสนอขายภาพตัวอย่างว่าเป็นผลงานต้นฉบับของนักศึกษา
+
+โครงสร้าง: `components/` หน้าจอ, `app/api/[...path]/route.ts` API, `lib/schema.ts` schema, `lib/auth.ts` session/permissions, `lib/db.ts` local/remote adapter, `scripts/setup.ts` เตรียมฐานข้อมูลออนไลน์

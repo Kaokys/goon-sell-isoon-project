@@ -1,0 +1,74 @@
+[
+  {
+    "id": 1,
+    "title": "Water Lilies",
+    "artist": "Claude Monet",
+    "filename": "art-1.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Seerosen.jpg",
+    "license": "Public domain",
+    "license_url": null
+  },
+  {
+    "id": 2,
+    "title": "Cliff Walk at Pourville",
+    "artist": "Claude Monet",
+    "filename": "art-2.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Claude_Monet_-_Cliff_Walk_at_Pourville_-_Google_Art_Project.jpg",
+    "license": "Public domain",
+    "license_url": null
+  },
+  {
+    "id": 3,
+    "title": "Roses in a Bowl and Dish",
+    "artist": "Henri Fantin-Latour",
+    "filename": "art-3.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Henri_Fantin-Latour_-_Roses_in_a_Bowl_and_Dish_-_1955.734_-_Clark_Art_Institute.tiff",
+    "license": "Public domain",
+    "license_url": null
+  },
+  {
+    "id": 4,
+    "title": "Still Life (Primroses, Pears and Pomegranates)",
+    "artist": "Henri Fantin-Latour",
+    "filename": "art-4.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Henri_Fantin-Latour_-_Still_life_(primroses,_pears_and_pomegranates)_-_Google_Art_Project.jpg",
+    "license": "Public domain",
+    "license_url": null
+  },
+  {
+    "id": 5,
+    "title": "Improvisation No. 30 (Cannons)",
+    "artist": "Vasily Kandinsky",
+    "filename": "art-5.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Vasily_Kandinsky,_Improvisation_No._30_(Cannons),_1913,_1931.511,_Art_Institute_of_Chicago.jpg",
+    "license": "CC0",
+    "license_url": "http://creativecommons.org/publicdomain/zero/1.0/deed.en"
+  },
+  {
+    "id": 6,
+    "title": "Self-Portrait",
+    "artist": "Vincent van Gogh",
+    "filename": "art-6.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Vincent_van_Gogh_-_Self-Portrait_-_Google_Art_Project_(454045).jpg",
+    "license": "Public domain",
+    "license_url": null
+  },
+  {
+    "id": 7,
+    "title": "The Basket of Apples",
+    "artist": "Paul Cezanne",
+    "filename": "art-7.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Paul_C%C3%A9zanne_-_The_Basket_of_Apples_-_1926.252_-_Art_Institute_of_Chicago.jpg",
+    "license": "Public domain",
+    "license_url": null
+  },
+  {
+    "id": 8,
+    "title": "The Poet's Garden III (Couple in the Park at Arles)",
+    "artist": "Vincent van Gogh",
+    "filename": "art-8.jpg",
+    "source_url": "https://commons.wikimedia.org/wiki/File:Van_Gogh_-_Paar_im_Park_von_Arles_-_Der_Garten_des_Dichters_III.jpeg",
+    "license": "Public domain",
+    "license_url": null
+  }
+]

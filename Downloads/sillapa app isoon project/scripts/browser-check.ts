@@ -1,0 +1,44 @@
+import { chromium, expect } from '@playwright/test';
+import { spawn } from 'node:child_process';
+import path from 'node:path';
+import { mkdir, writeFile } from 'node:fs/promises';
+const port=3101, origin=`http://localhost:${port}`;
+const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p',String(port)],{cwd:process.cwd(),env:{...process.env,DATABASE_URL:'',VERCEL:'',APP_URL:origin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',`browser-${Date.now()}`),PROMPTPAY_ID:'',PROMPTPAY_NAME:''},stdio:'pipe',windowsHide:true});
+let serverLog='';server.stdout.on('data',d=>serverLog+=d);server.stderr.on('data',d=>serverLog+=d);
+const results:string[]=[];const errors:string[]=[];
+async function main(){
+ for(let i=0;i<90;i++){try{if((await fetch(`${origin}/api/session`)).ok)break;}catch{}if(i===89)throw new Error(serverLog);await new Promise(r=>setTimeout(r,1000));}
+ await mkdir('docs/screenshots',{recursive:true});
+ const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true});
+ try{
+ const customer=await browser.newContext({viewport:{width:1440,height:1000}});const page=await customer.newPage();page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(origin);await expect(page.locator('.art-card')).toHaveCount(7);await page.screenshot({path:'docs/screenshots/gallery-desktop.png',fullPage:true});
+ await page.getByPlaceholder('ชื่อผลงานหรือศิลปิน').fill('ดอกไม้');await expect(page.locator('.art-card')).toHaveCount(1);
+ await page.getByRole('button',{name:'ล้างทั้งหมด',exact:true}).click();await expect(page.locator('.art-card')).toHaveCount(7);
+ await page.getByLabel('เรียงผลงาน').selectOption('price_asc');await expect(page.locator('.art-bottom strong').first()).toContainText('2,400');results.push('Gallery search, reset and sorting operate in the browser');
+ await page.setViewportSize({width:390,height:844});await page.screenshot({path:'docs/screenshots/gallery-mobile.png',fullPage:true});
+ expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();
+ await page.getByRole('button',{name:'ตัวกรอง',exact:true}).click();await expect(page.getByPlaceholder('ชื่อผลงานหรือศิลปิน')).toBeVisible();
+ await page.getByRole('button',{name:'ตัวกรอง',exact:true}).click();await page.setViewportSize({width:1440,height:1000});results.push('Mobile gallery fits 390px width and filters can be expanded');
+ await page.goto(`${origin}/login`);await page.getByRole('button',{name:'ลูกค้า',exact:true}).click();await page.getByRole('button',{name:'เข้าสู่ระบบ',exact:true}).click();await expect(page).toHaveURL(origin+'/');
+ await page.goto(`${origin}/artworks/sample-1`);await page.getByRole('button',{name:'เพิ่มลงตะกร้า',exact:true}).click();await page.getByRole('link',{name:'ไปที่ตะกร้า',exact:true}).click();
+ await page.getByLabel('ชื่อผู้รับ').fill('ทดสอบ ผู้ซื้อ');await page.getByLabel('เบอร์โทรศัพท์').fill('0812345678');await page.getByLabel('ที่อยู่จัดส่ง').fill('123 ถนนทดสอบ แขวงทดสอบ เขตทดสอบ กรุงเทพมหานคร 10100');
+ await page.getByRole('button',{name:'ยืนยันคำสั่งซื้อ',exact:true}).click();await expect(page).toHaveURL(/\/orders\/[a-f0-9-]+/);const orderUrl=page.url();
+ await page.locator('input[type=file]').setInputFiles('public/art/art-2.jpg');await expect(page.getByText('แนบสลิปแล้ว · รอตรวจสอบ')).toBeVisible();results.push('Customer logs in, adds an artwork, checks out and uploads a slip');
+ const admin=await browser.newContext({viewport:{width:1440,height:1000}});const adminPage=await admin.newPage();adminPage.on('pageerror',e=>errors.push(e.message));
+ await adminPage.goto(`${origin}/login`);await adminPage.getByRole('button',{name:'แอดมิน',exact:true}).click();await adminPage.getByRole('button',{name:'เข้าสู่ระบบ',exact:true}).click();await expect(adminPage).toHaveURL(origin+'/');
+ await adminPage.goto(orderUrl);await adminPage.getByRole('button',{name:'ยืนยันรับชำระเงิน',exact:true}).click();await adminPage.getByLabel('บริษัทขนส่ง / เลขติดตามพัสดุ').fill('TH Post: UI-TEST-001');await adminPage.getByRole('button',{name:'ยืนยันการจัดส่ง',exact:true}).click();await expect(adminPage.locator('.tracking')).toContainText('UI-TEST-001');
+ await page.reload();await page.getByRole('button',{name:'ยืนยันว่าได้รับผลงานแล้ว',exact:true}).click();await expect(page.locator('.page-heading .badge')).toHaveText('สำเร็จ');results.push('Admin confirms payment and shipping; customer completes receipt');
+ await adminPage.goto(`${origin}/studio`);await expect(adminPage.locator('.stat-card').first()).toContainText('4,200');await adminPage.screenshot({path:'docs/screenshots/dashboard-desktop.png',fullPage:true});
+ await adminPage.setViewportSize({width:390,height:844});expect(await adminPage.evaluate(()=>document.documentElement.scrollWidth<=innerWidth)).toBeTruthy();await adminPage.screenshot({path:'docs/screenshots/dashboard-mobile.png',fullPage:true});results.push('Dashboard reflects the paid order and fits mobile width');
+ const artist=await browser.newContext({viewport:{width:1440,height:1000}});const artistPage=await artist.newPage();artistPage.on('pageerror',e=>errors.push(e.message));
+ await artistPage.goto(`${origin}/login`);await artistPage.getByRole('button',{name:'ศิลปิน',exact:true}).click();await artistPage.getByRole('button',{name:'เข้าสู่ระบบ',exact:true}).click();await expect(artistPage).toHaveURL(origin+'/');
+ await artistPage.goto(`${origin}/studio/artworks`);await artistPage.getByRole('button',{name:'เพิ่มผลงาน',exact:true}).click();await artistPage.locator('dialog input[type=file]').setInputFiles('public/art/art-3.jpg');await expect(artistPage.locator('.upload-preview')).toBeVisible();
+ await artistPage.getByLabel('ชื่อผลงาน',{exact:true}).fill('ผลงานจากการทดสอบหน้าจอ');await artistPage.locator('select[name=category_id]').selectOption('painting');await artistPage.getByLabel('เทคนิค',{exact:true}).fill('สีน้ำมันบนผ้าใบ');await artistPage.getByLabel('กว้าง (ซม.)').fill('40');await artistPage.getByLabel('สูง (ซม.)').fill('50');await artistPage.getByLabel('ราคา (บาท)').fill('1200');await artistPage.getByLabel('เรื่องราวของผลงาน').fill('ทดสอบการเพิ่มผลงานผ่านแบบฟอร์มจริงพร้อมภาพและรายละเอียด');await artistPage.getByRole('button',{name:'บันทึกและส่งขออนุมัติ'}).click();await expect(artistPage.getByRole('dialog')).toHaveCount(0);await expect(artistPage.getByText('ผลงานจากการทดสอบหน้าจอ',{exact:true})).toBeVisible();
+ await adminPage.setViewportSize({width:1440,height:1000});await adminPage.goto(`${origin}/studio/artworks`);const row=adminPage.getByRole('row').filter({hasText:'ผลงานจากการทดสอบหน้าจอ'});await row.getByRole('button',{name:'ตรวจผลงาน'}).click();await adminPage.getByRole('button',{name:'อนุมัติเผยแพร่'}).click();await expect(adminPage.getByRole('dialog')).toHaveCount(0);await expect(row.locator('.badge')).toHaveText('พร้อมจำหน่าย');results.push('Artist uploads and submits art through the form; admin publishes it');
+ await adminPage.goto(`${origin}/studio/logs`);await expect(adminPage.locator('tbody tr').first()).toBeVisible();results.push('Audit log is visible to admin after real UI operations');
+ expect(errors).toEqual([]);results.push('No browser runtime errors during tested journeys');
+ await writeFile('docs/BROWSER-RESULTS.md',`# Browser verification\n\nExecuted: ${new Date().toISOString()}\n\nMicrosoft Edge via Playwright, isolated production server/database; no actual payment.\n\n${results.map(r=>`- PASS: ${r}`).join('\n')}\n\nScreenshots: gallery and dashboard at 1440px and 390px widths.\n`);console.log(results.map(r=>`PASS ${r}`).join('\n'));
+ }finally{await browser.close();}
+}
+main().catch(e=>{console.error(e);console.error(serverLog.slice(-1500));process.exitCode=1;}).finally(()=>server.kill());
