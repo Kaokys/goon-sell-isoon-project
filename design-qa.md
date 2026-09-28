@@ -1,29 +1,58 @@
-# Design QA — Nike-inspired storefront
+# Design QA — role-first customer home and artist Studio
 
-## Final status: passed
+## Evidence
 
-- Source of truth: `docs/design-target-nike-inspired.png` (1487 × 1058)
-- Implementation capture: `docs/screenshots/gallery-desktop.png` (1440 × 2265 full page; 1440 × 1000 viewport)
-- Mobile capture: `docs/screenshots/gallery-mobile.png` (390 × 2576 full page; 390 × 844 viewport)
-- Tested state: signed out, default artwork order, filters collapsed
+- Source visual truth: `C:\Users\ASUS Vivobook\.codex\generated_images\01a0d1e1-5a84-7c63-b188-d05e18438562\exec-a45572f7-09dc-4175-8dec-a731f52ef124.png`
+- Source pixels: 1487 × 1058.
+- Customer implementation: `D:\sillapa app isoon project\docs\screenshots\customer-home-mobile.png`
+- Customer capture: 390 × 1687 pixels; compared at the 390 × 844 CSS viewport crop, deviceScaleFactor 1.
+- Artist implementation: `D:\sillapa app isoon project\docs\screenshots\artist-studio-desktop.png`
+- Artist capture: 1440 × 1345 pixels; compared at the 1440 × 1024 CSS viewport crop, deviceScaleFactor 1.
+- Combined full-view comparison: `D:\sillapa app isoon project\docs\screenshots\design-qa-comparison.png`
+- Additional responsive evidence: `D:\sillapa app isoon project\docs\screenshots\artist-studio-mobile.png`
+- State: authenticated customer home and authenticated artist Studio dashboard, using isolated browser-test data.
 
-## Comparison evidence
+## Findings
 
-The source and implementation were inspected together at desktop size. Both use the same hierarchy: slim black utility bar, white commerce navigation, wide water-lily hero with oversized white Thai headline and pill CTA, centered category chips, and a four-column artwork rail. The implementation keeps SILLAPA's cobalt accent and real marketplace controls while matching the source's spacing, image emphasis, typography scale, and simplified shopping flow.
+No actionable P0, P1, or P2 differences remain.
 
-Focused region review was not required because the full desktop captures made the header, hero, category rail, filters, and first product row legible in one comparison. The complete implementation capture was also inspected for card consistency and footer alignment.
+- Fonts and typography: IBM Plex Sans Thai with Manrope fallback preserves the reference's bold Thai headings, compact labels, and readable 14–16px body scale. The heading hierarchy and weights match the selected direction.
+- Spacing and layout rhythm: the customer view retains the search-first stack, three equal shortcuts, order card, recommendations, and persistent mobile navigation. The Studio retains a dark top bar, left navigation, three status summaries, a dominant upload action, next actions, revenue, and recent work.
+- Colors and visual tokens: white and soft gray surfaces, #3151e8 cobalt actions, #111827 Studio chrome, and semantic amber, red, and green states align with the source.
+- Image quality and asset fidelity: existing high-resolution artwork assets are used with intentional `object-fit: cover` crops. UI icons come from the project's Lucide icon set; no placeholder or CSS-drawn visual assets replace source imagery.
+- Copy and content: Thai task labels are concise and tied to working routes. The implementation uses the real states `ต้องแก้ไข`, `รออนุมัติ`, and `เผยแพร่แล้ว` instead of inventing a draft state that the data model does not support.
+- Accessibility and responsiveness: buttons and links retain visible focus states, mobile controls meet practical touch sizes, status is expressed with icon, color, and text, and both 390px captures have no horizontal overflow.
 
 ## Comparison history
 
-1. Initial implementation: passed visual hierarchy review; the live 750px view confirmed the mobile/tablet hero and horizontal category controls.
-2. Desktop review at 1440 × 1024: passed header, hero crop, CTA, whitespace, and responsive grid checks.
-3. Browser journey at 1440px and 390px: passed search, reset, sorting, filter expansion, checkout, addresses, payment proof, order status, admin approval, dashboard, artwork upload, and audit-log checks.
+### Iteration 1
 
-## Interaction and runtime checks
+- [P1] Artist Studio still inherited the storefront utility bar, storefront navigation, promotion strip, and footer. This blurred the boundary between shopping and artwork management and differed materially from the selected design.
+- Fix: added a dedicated full-screen Studio shell with dark Studio top bar, direct storefront exit, artist identity, logout, persistent Studio navigation, and a neutral workspace background.
+- Post-fix evidence: `docs/screenshots/artist-studio-desktop.png` and the lower-right frame in `docs/screenshots/design-qa-comparison.png` show the storefront chrome removed and the Studio hierarchy aligned with the source.
 
-- Primary interactions tested: hero anchor, category controls, filter toggle, search, sorting, artwork navigation, cart, Thai address selection, payment method selection, slip upload, and role-based admin actions.
-- Horizontal overflow: none at 390px.
-- Browser console warnings/errors: none in the final live check.
-- Production build, TypeScript check, 17 integration groups, and the complete browser journey passed.
+### Iteration 2
 
-No open P0, P1, or P2 visual issues remain.
+- No P0, P1, or P2 findings remained after comparing the updated customer and artist screens with the source in one combined image.
+
+## Primary interactions tested
+
+- Customer login, role-specific home, shortcuts, recommendation count, mobile bottom navigation, address selection, checkout, slip upload, order tracking, and receipt completion.
+- Artist login, Studio dashboard, artwork upload, submission for approval, admin publication, and responsive 390px layout.
+- Admin payment confirmation, shipping update, audit log, and role access controls.
+- Browser console/page errors checked: none during the tested journeys.
+
+## Follow-up polish
+
+- [P3] The isolated customer screenshot shows the intentional empty-order state, while the source shows an active shipment. The same card automatically changes to the live order status and action when an order exists.
+- [P3] Status totals and recent rows vary from the mock because they render real database values.
+
+## Implementation checklist
+
+- [x] Match the selected customer mobile hierarchy.
+- [x] Match the selected artist Studio hierarchy.
+- [x] Use live role and marketplace data.
+- [x] Verify desktop and 390px mobile layouts.
+- [x] Test the customer-to-admin-to-artist workflow.
+
+final result: passed
