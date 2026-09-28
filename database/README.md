@@ -26,13 +26,14 @@ npm run dev
 
 ## ใช้กับ Vercel
 
-Vercel ต้องใช้ PostgreSQL ภายนอก เช่น Supabase เพราะพื้นที่ไฟล์ของ Serverless ไม่ถาวร
+Vercel ต้องใช้ PostgreSQL จาก Storage Marketplace เพราะพื้นที่ไฟล์ของ Serverless ไม่ถาวร สำหรับงานนี้เลือก **Neon** จากหน้า Vercel ได้เลย
 
-1. ตั้ง `DATABASE_URL` ใน `.env.local` ด้วย Supabase Transaction Pooler URL
-2. ตั้ง `ADMIN_EMAIL` และ `ADMIN_PASSWORD` สำหรับสร้างแอดมินคนแรก
-3. รัน `npm run db:setup` หนึ่งครั้ง
-4. นำ `DATABASE_URL` และ `APP_URL` ไปตั้งใน Vercel แล้ว Redeploy
+1. Vercel → **Storage → Marketplace → Neon** แล้วเชื่อมกับโปรเจกต์
+2. Vercel จะเพิ่ม `DATABASE_URL` ให้โปรเจกต์อัตโนมัติ
+3. เปิด Neon Console จากหน้า Storage แล้วรัน `schema.sql`
+4. รัน `demo-users.sql` เพื่อเพิ่มบัญชีทดลองสามสิทธิ์
+5. ตั้ง `APP_URL` ใน Vercel แล้ว Redeploy
 
 อย่า commit `.env.local`, รหัสผ่านฐานข้อมูล, ข้อมูลลูกค้า หรือโฟลเดอร์ `.data/`
 
-หากต้องการบัญชีทดลองบน Supabase ให้เปิด **SQL Editor** แล้วรัน `schema.sql` ก่อน ตามด้วย `demo-users.sql` บัญชีเหล่านี้ใช้ข้อมูลสาธิตและต้องลบหรือเปลี่ยนรหัสผ่านก่อนนำระบบไปใช้งานจริง
+บัญชีเหล่านี้ใช้ข้อมูลสาธิตและต้องลบหรือเปลี่ยนรหัสผ่านก่อนนำระบบไปใช้งานจริง

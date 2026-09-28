@@ -58,5 +58,5 @@ CREATE INDEX IF NOT EXISTS art_audit_created ON art.audit_logs(created_at);
 CREATE INDEX IF NOT EXISTS art_sessions_expiry ON art.sessions(expires_at);
 ALTER TABLE art.users ADD COLUMN IF NOT EXISTS google_sub TEXT;
 CREATE UNIQUE INDEX IF NOT EXISTS art_users_google_sub ON art.users(google_sub) WHERE google_sub IS NOT NULL;
--- Application tables live outside Supabase's exposed public schema.
+-- Application tables use a dedicated PostgreSQL schema.
 REVOKE ALL ON SCHEMA art FROM PUBLIC;

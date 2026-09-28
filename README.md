@@ -1,6 +1,6 @@
 # SILLAPA — Art Marketplace
 
-เว็บขายผลงานศิลปะภาษาไทย: Next.js / React / TypeScript + PostgreSQL รองรับ Vercel และฐานข้อมูล Supabase
+เว็บขายผลงานศิลปะภาษาไทย: Next.js / React / TypeScript + PostgreSQL รองรับ GitHub, Vercel และฐานข้อมูล Neon ที่สร้างจาก Vercel Marketplace
 
 ไฟล์ SQL สำหรับส่งงานและตรวจโครงสร้างฐานข้อมูลอยู่ใน [`database/`](database/README.md) โดยไม่มีข้อมูลลูกค้าหรือรหัสลับจริง
 
@@ -52,16 +52,15 @@ npm run dev
 
 Admin Portal แยกที่ `/admin` พร้อมหน้าเข้าสู่ระบบเฉพาะแอดมิน: `/admin/artworks` อนุมัติผลงาน · `/admin/orders` จัดการออเดอร์ · `/admin/users` จัดการผู้ใช้ · `/admin/categories` หมวดหมู่ · `/admin/logs` ประวัติ
 
-## ขึ้น Vercel + Supabase
+## ขึ้น GitHub + Vercel
 
-1. สร้าง Supabase project แล้วเปิด **Connect → Transaction pooler** คัดลอก PostgreSQL connection string (ปกติ port 6543) ใส่รหัสผ่านฐานข้อมูลที่ URL-encode แล้ว
-2. คัดลอก `.env.example` เป็น `.env.local` และใส่ `DATABASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASSWORD` (อย่างน้อย 12 ตัวอักษร) ห้าม commit หรือส่งรหัสผ่านในแชต
-3. รัน `npm run db:setup` เพื่อสร้าง schema และบัญชี admin จริงก่อน deploy สคริปต์ไม่เปลี่ยนรหัสผ่านหรือยกระดับบัญชีที่มีอยู่
-4. ถ้าต้องการข้อมูลภาพสาธิตบนฐานข้อมูลว่าง ตั้ง `SEED_DEMO=true` ก่อน setup โปรไฟล์ตัวอย่างจะใช้รหัสผ่านสุ่มที่ไม่มีการเปิดเผย ไม่ใช้รหัสผ่านทดลองในเครื่อง ส่วนบัญชี admin/customer สาธิตจะถูกปิดใช้งาน
-5. นำโฟลเดอร์โปรเจกต์นี้ขึ้น Git repository แล้ว Import เข้า Vercel หรือใช้ CLI `npx vercel login` ตามด้วย `npx vercel` จากโฟลเดอร์นี้
-6. เลือก Framework **Next.js** และกำหนด Environment Variables: `DATABASE_URL`, `APP_URL` (origin จริง เช่น `https://ชื่อร้าน.vercel.app`), `PROMPTPAY_ID` (เบอร์โทร 10 หลักหรือเลขประจำตัว 13 หลักของผู้รับเงินจริง), `PROMPTPAY_NAME` อย่านำ `ADMIN_PASSWORD` หรือ `SEED_DEMO` ไปใส่ runtime บน Vercel
-7. Deploy แล้วเข้าระบบด้วย admin จริง สร้างบัญชีศิลปินและให้สิทธิ์ staff อัปโหลดผลงานและทดสอบขั้นตอนการซื้อกับข้อมูลทดสอบก่อนใช้งานจริง
-8. เมื่อเปลี่ยนโดเมน ต้องเปลี่ยน `APP_URL` ให้ตรงและ redeploy ด้วย เพราะระบบตรวจ Origin ป้องกัน CSRF สำหรับ Preview deployment ให้กำหนด URL ของ preview ให้ตรงเช่นกัน
+1. Import GitHub repository นี้เข้า Vercel และเลือก Framework **Next.js**
+2. ใน Vercel เปิด **Storage → Marketplace → Neon** เลือกแผน Free แล้วเชื่อมฐานข้อมูลกับโปรเจกต์ Vercel จะเพิ่ม `DATABASE_URL` ให้อัตโนมัติ
+3. เปิด Neon Console จากหน้า Storage ของ Vercel แล้วรัน [`database/schema.sql`](database/schema.sql) ตามด้วย [`database/demo-users.sql`](database/demo-users.sql)
+4. ใน Vercel Environment Variables เพิ่ม `APP_URL` เป็น URL จริง เช่น `https://ชื่อร้าน.vercel.app`
+5. ถ้าต้องการรับเงินจริงจึงเพิ่ม `PROMPTPAY_ID`, `PROMPTPAY_NAME` หรือข้อมูลบัญชีธนาคาร ห้ามใช้ข้อมูลการเงินจริงในงานสาธิต
+6. กด **Redeploy** แล้วใช้บัญชีทดลองสามสิทธิ์จากตารางด้านบน
+7. เมื่อเปลี่ยนโดเมน ต้องเปลี่ยน `APP_URL` ให้ตรงและ redeploy เพราะระบบตรวจ Origin ป้องกัน CSRF
 
 **โอนธนาคาร:** ตั้ง `BANK_NAME`, `BANK_ACCOUNT_NAME`, `BANK_ACCOUNT_NUMBER` ครบทั้งสามค่าเพื่อเปิดตัวเลือกนี้บนเว็บออนไลน์ ระบบแสดงบัญชีและปุ่มคัดลอกหลังสั่งซื้อ ช่องทางที่ยังไม่ตั้งค่าจะกดเลือกไม่ได้ โหมด local เปิดตัวเลือกไว้เพื่อทดสอบ แต่ไม่มีบัญชีหรือ QR สมมติให้โอนเงินจริง
 
@@ -71,11 +70,11 @@ Admin Portal แยกที่ `/admin` พร้อมหน้าเข้า
 
 Vercel ต้องมี `DATABASE_URL` เสมอ ระบบไม่ใช้ฐานข้อมูลบนดิสก์ชั่วคราวของ serverless และไม่สร้างตารางตอนรับคำขอจริง
 
-ภาพอัปโหลดถูกตรวจสอบ/ย่อด้วย Sharp และเก็บเป็น binary ใน PostgreSQL schema `art` เช่นเดียวกับสลิป เพื่อลดขั้นตอนการตั้งค่าสำหรับโปรเจกต์นี้ ขนาดต้นฉบับไม่เกิน 3 MB; ภาพแสดงผลสูงสุด 1600px เหมาะกับงานขนาดเล็ก หากมีภาพจำนวนมากควรย้ายไฟล์ไป private Supabase Storage และคงกฎการเข้าถึงเดิม ภาพนี้ไม่ใช่ไฟล์ต้นฉบับสำหรับขายไฟล์ความละเอียดสูง
+ภาพอัปโหลดถูกตรวจสอบ/ย่อด้วย Sharp และเก็บเป็น binary ใน PostgreSQL schema `art` เช่นเดียวกับสลิป เพื่อลดขั้นตอนการตั้งค่าสำหรับโปรเจกต์นี้ ขนาดต้นฉบับไม่เกิน 3 MB; ภาพแสดงผลสูงสุด 1600px เหมาะกับงานขนาดเล็ก หากมีภาพจำนวนมากควรย้ายไป Object Storage ภายหลัง ภาพนี้ไม่ใช่ไฟล์ต้นฉบับสำหรับขายไฟล์ความละเอียดสูง
 
-ตารางทั้งหมดอยู่ใน schema `art` ที่ไม่เปิดผ่าน Supabase Data API เว็บใช้ session ของแอปเอง ไม่ได้ใช้ Supabase Auth SDK การอนุญาตเข้าถึงอยู่ที่ server API และ Supabase ใช้เป็น PostgreSQL เท่านั้น
+ตารางทั้งหมดอยู่ใน PostgreSQL schema `art` เว็บใช้ session และการตรวจสิทธิ์จาก Server API ของแอปเอง
 
-เอกสารอ้างอิง: [Next.js deployment](https://nextjs.org/docs/app/getting-started/deploying), [Supabase PostgreSQL connection](https://supabase.com/docs/guides/database/connecting-to-postgres), [Postgres.js / transaction pooler](https://supabase.com/docs/guides/database/postgres-js)
+เอกสารอ้างอิง: [Vercel Marketplace Storage](https://vercel.com/docs/marketplace-storage), [Postgres on Vercel](https://vercel.com/docs/postgres), [Neon for Vercel](https://vercel.com/marketplace/neon)
 
 ## ตรวจสอบ
 
@@ -94,7 +93,7 @@ npm run test:browser
 
 ## ขอบเขตและสิ่งที่ยังต้องตั้งค่า
 
-- ต้องเชื่อมบัญชี Vercel และ Supabase ของเจ้าของร้านเพื่อเผยแพร่จริง
+- ต้อง Import GitHub เข้า Vercel และเพิ่ม Neon Postgres จาก Vercel Marketplace เพื่อให้ข้อมูลออนไลน์คงอยู่
 - QR จะไม่ปรากฏจนกว่าจะตั้งผู้รับ PromptPay จริง การแนบสลิปไม่ได้ยืนยันการรับเงินโดยอัตโนมัติ
 - คำสั่งซื้อรอชำระจะจองผลงานจนกว่าจะยกเลิก ไม่มีการหมดอายุการจองอัตโนมัติในรุ่นนี้
 - ไม่มีส่งอีเมลยืนยัน/รีเซ็ตรหัสผ่าน และไม่มี gateway ตรวจสลิปอัตโนมัติ

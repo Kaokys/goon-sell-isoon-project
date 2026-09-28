@@ -22,4 +22,4 @@ Production Next.js server with isolated persistent PostgreSQL (PGlite) database.
 - PASS: Artwork soft deletion and unused category deletion
 - PASS: Logout invalidates server-side session
 
-17 groups passed. Remote Supabase connectivity and Vercel deployment are not covered without owner credentials.
+17 groups passed. Remote Neon connectivity and Vercel deployment are not covered without owner credentials.
