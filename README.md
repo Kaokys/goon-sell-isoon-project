@@ -56,15 +56,15 @@ Admin Portal แยกที่ `/admin` พร้อมหน้าเข้า
 
 1. Import GitHub repository นี้เข้า Vercel และเลือก Framework **Next.js**
 2. ใน Vercel เปิด **Storage → Marketplace → Neon** เลือกแผน Free แล้วเชื่อมฐานข้อมูลกับโปรเจกต์ Vercel จะเพิ่ม `DATABASE_URL` ให้อัตโนมัติ
-3. เปิด Neon Console จากหน้า Storage ของ Vercel แล้วรัน [`database/schema.sql`](database/schema.sql) ตามด้วย [`database/demo-users.sql`](database/demo-users.sql)
-4. ใน Vercel Environment Variables เพิ่ม `APP_URL` เป็น URL จริง เช่น `https://ชื่อร้าน.vercel.app`
+3. กด **Redeploy** ระบบจะสร้างตาราง บัญชีทดลอง และผลงานตัวอย่างให้อัตโนมัติ ไม่ต้องเปิด SQL Editor
+4. ใน Vercel Environment Variables เพิ่ม `APP_URL` เป็น URL จริง เช่น `https://ชื่อร้าน.vercel.app` แล้ว Redeploy อีกครั้ง
 5. ถ้าต้องการรับเงินจริงจึงเพิ่ม `PROMPTPAY_ID`, `PROMPTPAY_NAME` หรือข้อมูลบัญชีธนาคาร ห้ามใช้ข้อมูลการเงินจริงในงานสาธิต
-6. กด **Redeploy** แล้วใช้บัญชีทดลองสามสิทธิ์จากตารางด้านบน
+6. เข้าเว็บด้วยบัญชีทดลองสามสิทธิ์จากตารางด้านบน
 7. เมื่อเปลี่ยนโดเมน ต้องเปลี่ยน `APP_URL` ให้ตรงและ redeploy เพราะระบบตรวจ Origin ป้องกัน CSRF
 
 **โอนธนาคาร:** ตั้ง `BANK_NAME`, `BANK_ACCOUNT_NAME`, `BANK_ACCOUNT_NUMBER` ครบทั้งสามค่าเพื่อเปิดตัวเลือกนี้บนเว็บออนไลน์ ระบบแสดงบัญชีและปุ่มคัดลอกหลังสั่งซื้อ ช่องทางที่ยังไม่ตั้งค่าจะกดเลือกไม่ได้ โหมด local เปิดตัวเลือกไว้เพื่อทดสอบ แต่ไม่มีบัญชีหรือ QR สมมติให้โอนเงินจริง
 
-**อัปเดตฐานข้อมูลเดิม:** รัน `npm run db:setup` อีกครั้งก่อน deploy รุ่น Checkout/สมุดที่อยู่ สคริปต์เพิ่มตารางและคอลัมน์ด้วย `IF NOT EXISTS` โดยเก็บข้อมูลเดิม Local จะอัปเดตเมื่อเริ่มเซิร์ฟเวอร์ใหม่โดยอัตโนมัติ
+**อัปเดตฐานข้อมูลเดิม:** ทุกครั้งที่ Vercel Build จะรัน `npm run db:coursework` ก่อนสร้างเว็บ สคริปต์เพิ่มตารางและคอลัมน์ด้วย `IF NOT EXISTS` โดยเก็บข้อมูลเดิมและไม่สร้างบัญชีซ้ำ Local จะอัปเดตเมื่อเริ่มเซิร์ฟเวอร์ใหม่โดยอัตโนมัติ
 
 ข้อมูลจังหวัด/อำเภอ/ตำบลอ้างอิงจาก [jquery.Thailand.js](https://github.com/earthchie/jquery.Thailand.js) เก็บใน `data/` พร้อมใบอนุญาต ไม่ส่งที่อยู่ลูกค้าไปบริการภายนอก และไม่ใช่บริการตรวจที่อยู่แบบสดของไปรษณีย์ไทย
 
@@ -100,4 +100,4 @@ npm run test:browser
 - ฟีเจอร์เสริมในโจทย์ (ลายน้ำ ขายไฟล์ต้นฉบับ แบ่ง commission รับงานตามสั่ง รีวิว ถูกใจ ติดตาม และแนะนำภาพ) ยังไม่รวมในรุ่นขั้นต่ำนี้
 - ภาพเริ่มต้นเป็นงานสาธารณสมบัติ/CC0 พร้อมเครดิตที่ `/credits` ชื่อสินค้า ขนาด ราคา และโปรไฟล์นักศึกษาเป็นข้อมูลสมมติ ห้ามเสนอขายภาพตัวอย่างว่าเป็นผลงานต้นฉบับของนักศึกษา
 
-โครงสร้าง: `components/` หน้าจอ, `app/api/[...path]/route.ts` API, `lib/schema.ts` schema, `lib/auth.ts` session/permissions, `lib/db.ts` local/remote adapter, `scripts/setup.ts` เตรียมฐานข้อมูลออนไลน์
+โครงสร้าง: `components/` หน้าจอ, `app/api/[...path]/route.ts` API, `lib/schema.ts` schema, `lib/auth.ts` session/permissions, `lib/db.ts` local/remote adapter, `scripts/setup-coursework.ts` เตรียมฐานข้อมูลบน Vercel อัตโนมัติ

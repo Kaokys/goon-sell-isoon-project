@@ -7,7 +7,7 @@
 - `schema.sql` — PostgreSQL schema ทั้งหมดของระบบ: ผู้ใช้และสิทธิ์ ผลงาน หมวดหมู่ คำสั่งซื้อ ที่อยู่ สื่อ Session และ Audit log
 - `demo-users.sql` — บัญชีทดลอง 3 สิทธิ์สำหรับงานส่งอาจารย์ รหัสผ่านถูกเก็บแบบ scrypt hash
 - โค้ดสร้างข้อมูลสาธิตอยู่ใน `lib/seed.ts`
-- ตัวติดตั้งฐานข้อมูลอยู่ใน `scripts/setup.ts`
+- ตัวติดตั้งฐานข้อมูลอัตโนมัติสำหรับ Vercel อยู่ใน `scripts/setup-coursework.ts`
 
 ## ทดลองในเครื่อง
 
@@ -30,9 +30,10 @@ Vercel ต้องใช้ PostgreSQL จาก Storage Marketplace เพร�
 
 1. Vercel → **Storage → Marketplace → Neon** แล้วเชื่อมกับโปรเจกต์
 2. Vercel จะเพิ่ม `DATABASE_URL` ให้โปรเจกต์อัตโนมัติ
-3. เปิด Neon Console จากหน้า Storage แล้วรัน `schema.sql`
-4. รัน `demo-users.sql` เพื่อเพิ่มบัญชีทดลองสามสิทธิ์
-5. ตั้ง `APP_URL` ใน Vercel แล้ว Redeploy
+3. กด Redeploy ระบบจะรัน `npm run db:coursework` และสร้างตาราง บัญชีทดลอง และข้อมูลตัวอย่างให้อัตโนมัติ
+4. ตั้ง `APP_URL` ใน Vercel เป็น URL ของเว็บ แล้ว Redeploy อีกครั้ง
+
+ไม่ต้องเปิด Neon Console หรือคัดลอก SQL เอง ไฟล์ `schema.sql` และ `demo-users.sql` ยังเก็บไว้ให้อาจารย์เปิดตรวจโครงสร้างและข้อมูลตัวอย่างได้
 
 อย่า commit `.env.local`, รหัสผ่านฐานข้อมูล, ข้อมูลลูกค้า หรือโฟลเดอร์ `.data/`
 

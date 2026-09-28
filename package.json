@@ -8,6 +8,7 @@
     "start": "next start -p 3000",
     "typecheck": "tsc --noEmit",
     "db:setup": "tsx scripts/setup.ts",
+    "db:coursework": "tsx scripts/setup-coursework.ts",
     "test:integration": "tsx scripts/integration.ts",
     "test:browser": "tsx scripts/browser-check.ts"
   },
