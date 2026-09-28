@@ -6,7 +6,7 @@ import { AppError, requireUser } from './auth';
 import { audit, type DB } from './db';
 export const formatAddress=(a:Record<string,any>)=>`${a.line1}\n${a.province==='กรุงเทพมหานคร'?'แขวง':'ตำบล'}${a.subdistrict} ${a.province==='กรุงเทพมหานคร'?'เขต':'อำเภอ'}${a.district}\n${a.province} ${a.postcode}`;
 export function paymentOptions(){
- const demo=!process.env.DATABASE_URL&&!process.env.VERCEL;
+ const demo=!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL;
  const promptpay=!!process.env.PROMPTPAY_ID&&/^(0\d{9}|\d{13})$/.test(process.env.PROMPTPAY_ID);
  const bank=!!(process.env.BANK_NAME&&process.env.BANK_ACCOUNT_NAME&&process.env.BANK_ACCOUNT_NUMBER);
  return {demo,shipping_fee:0,methods:[{id:'promptpay',name:'สแกน QR PromptPay',description:'สแกนผ่านแอปธนาคาร แล้วแนบสลิป',enabled:promptpay||demo,configured:promptpay},{id:'bank_transfer',name:'โอนผ่านบัญชีธนาคาร',description:'โอนเข้าบัญชีร้าน แล้วแนบสลิป',enabled:bank||demo,configured:bank}]};

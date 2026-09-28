@@ -1,8 +1,8 @@
 # Integration test results
 
-Executed: 2026-09-28T18:40:02.354Z
+Executed: 2026-09-28T20:30:10.973Z
 
-Production Next.js server with isolated persistent PostgreSQL (PGlite) database. No live payment sent.
+Production Next.js server with isolated local test data. No live payment sent.
 
 - PASS: Registration ignores injected role; new users are customers
 - PASS: Server-side role checks protect users, reports and audit logs
@@ -22,4 +22,4 @@ Production Next.js server with isolated persistent PostgreSQL (PGlite) database.
 - PASS: Artwork soft deletion and unused category deletion
 - PASS: Logout invalidates server-side session
 
-17 groups passed. Remote Neon connectivity and Vercel deployment are not covered without owner credentials.
+17 groups passed. Live Vercel Blob connectivity is not covered without the project store token.

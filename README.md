@@ -1,8 +1,6 @@
 # SILLAPA — Art Marketplace
 
-เว็บขายผลงานศิลปะภาษาไทย: Next.js / React / TypeScript + PostgreSQL รองรับ GitHub, Vercel และฐานข้อมูล Neon ที่สร้างจาก Vercel Marketplace
-
-ไฟล์ SQL สำหรับส่งงานและตรวจโครงสร้างฐานข้อมูลอยู่ใน [`database/`](database/README.md) โดยไม่มีข้อมูลลูกค้าหรือรหัสลับจริง
+เว็บขายผลงานศิลปะภาษาไทย: Next.js / React / TypeScript รองรับ GitHub และ Vercel โดยเก็บข้อมูลออนไลน์เป็นไฟล์ JSON ก้อนเดียวใน Vercel Blob ไม่ต้องติดตั้งหรือดูแล SQL Server
 
 ## เริ่มใช้งานในเครื่อง
 
@@ -13,7 +11,7 @@ npm ci
 npm run dev
 ```
 
-เปิด http://localhost:3000 ระบบจะสร้าง PostgreSQL แบบฝังตัวด้วย PGlite ใน `.data/postgres` ให้อัตโนมัติ ข้อมูลยังอยู่หลังปิดและเปิดโปรแกรมใหม่ ห้ามเปิดหลายโปรเซสกับโฟลเดอร์ฐานข้อมูลเดียวกัน
+เปิด http://localhost:3000 ระบบจะสร้างไฟล์ข้อมูลสำหรับทดสอบใน `.data/postgres` ให้อัตโนมัติ ข้อมูลยังอยู่หลังปิดและเปิดโปรแกรมใหม่
 
 ### Google Login
 
@@ -25,7 +23,7 @@ npm run dev
 | Staff / ศิลปิน | artist@demo.local | ArtDemo2026! |
 | Customer | customer@demo.local | ArtDemo2026! |
 
-บัญชีทดลองมีเฉพาะฐานข้อมูลในเครื่อง อย่าโอนเงินจริงในโหมดทดลอง
+บัญชีทดลองถูกสร้างอัตโนมัติทั้งในเครื่องและครั้งแรกที่เปิดเว็บบน Vercel อย่าโอนเงินจริงในโหมดทดลอง
 
 ## ฟีเจอร์ขั้นต่ำ
 
@@ -55,8 +53,8 @@ Admin Portal แยกที่ `/admin` พร้อมหน้าเข้า
 ## ขึ้น GitHub + Vercel
 
 1. Import GitHub repository นี้เข้า Vercel และเลือก Framework **Next.js**
-2. ใน Vercel เปิด **Storage → Marketplace → Neon** เลือกแผน Free แล้วเชื่อมฐานข้อมูลกับโปรเจกต์ Vercel จะเพิ่ม `DATABASE_URL` ให้อัตโนมัติ
-3. กด **Redeploy** ระบบจะสร้างตาราง บัญชีทดลอง และผลงานตัวอย่างให้อัตโนมัติ ไม่ต้องเปิด SQL Editor
+2. ใน Vercel เปิด **Storage → Create Database → Blob** สร้าง Blob store แบบ **Private** แล้วเชื่อมกับโปรเจกต์ Vercel จะเพิ่ม `BLOB_READ_WRITE_TOKEN` ให้อัตโนมัติ
+3. กด **Redeploy** แล้วเปิดเว็บครั้งแรก ระบบจะสร้างไฟล์ `sillapa/coursework-data.json` พร้อมบัญชีและผลงานตัวอย่างอัตโนมัติ
 4. ใน Vercel Environment Variables เพิ่ม `APP_URL` เป็น URL จริง เช่น `https://ชื่อร้าน.vercel.app` แล้ว Redeploy อีกครั้ง
 5. ถ้าต้องการรับเงินจริงจึงเพิ่ม `PROMPTPAY_ID`, `PROMPTPAY_NAME` หรือข้อมูลบัญชีธนาคาร ห้ามใช้ข้อมูลการเงินจริงในงานสาธิต
 6. เข้าเว็บด้วยบัญชีทดลองสามสิทธิ์จากตารางด้านบน
@@ -64,17 +62,17 @@ Admin Portal แยกที่ `/admin` พร้อมหน้าเข้า
 
 **โอนธนาคาร:** ตั้ง `BANK_NAME`, `BANK_ACCOUNT_NAME`, `BANK_ACCOUNT_NUMBER` ครบทั้งสามค่าเพื่อเปิดตัวเลือกนี้บนเว็บออนไลน์ ระบบแสดงบัญชีและปุ่มคัดลอกหลังสั่งซื้อ ช่องทางที่ยังไม่ตั้งค่าจะกดเลือกไม่ได้ โหมด local เปิดตัวเลือกไว้เพื่อทดสอบ แต่ไม่มีบัญชีหรือ QR สมมติให้โอนเงินจริง
 
-**อัปเดตฐานข้อมูลเดิม:** ทุกครั้งที่ Vercel Build จะรัน `npm run db:coursework` ก่อนสร้างเว็บ สคริปต์เพิ่มตารางและคอลัมน์ด้วย `IF NOT EXISTS` โดยเก็บข้อมูลเดิมและไม่สร้างบัญชีซ้ำ Local จะอัปเดตเมื่อเริ่มเซิร์ฟเวอร์ใหม่โดยอัตโนมัติ
+**ข้อมูลออนไลน์:** ระบบอ่านและเขียนข้อมูลผู้ใช้ ผลงาน คำสั่งซื้อ ที่อยู่ สลิป Session และ Audit log ลงไฟล์ JSON ใน Vercel Blob โดยอัตโนมัติ ไม่ต้องเปิด SQL Editor หรือรันคำสั่งเตรียมฐานข้อมูล
 
 ข้อมูลจังหวัด/อำเภอ/ตำบลอ้างอิงจาก [jquery.Thailand.js](https://github.com/earthchie/jquery.Thailand.js) เก็บใน `data/` พร้อมใบอนุญาต ไม่ส่งที่อยู่ลูกค้าไปบริการภายนอก และไม่ใช่บริการตรวจที่อยู่แบบสดของไปรษณีย์ไทย
 
-Vercel ต้องมี `DATABASE_URL` เสมอ ระบบไม่ใช้ฐานข้อมูลบนดิสก์ชั่วคราวของ serverless และไม่สร้างตารางตอนรับคำขอจริง
+Vercel ต้องมี `BLOB_READ_WRITE_TOKEN` จาก Blob store ระบบไม่เขียนข้อมูลถาวรลงดิสก์ชั่วคราวของ Serverless
 
-ภาพอัปโหลดถูกตรวจสอบ/ย่อด้วย Sharp และเก็บเป็น binary ใน PostgreSQL schema `art` เช่นเดียวกับสลิป เพื่อลดขั้นตอนการตั้งค่าสำหรับโปรเจกต์นี้ ขนาดต้นฉบับไม่เกิน 3 MB; ภาพแสดงผลสูงสุด 1600px เหมาะกับงานขนาดเล็ก หากมีภาพจำนวนมากควรย้ายไป Object Storage ภายหลัง ภาพนี้ไม่ใช่ไฟล์ต้นฉบับสำหรับขายไฟล์ความละเอียดสูง
+ภาพอัปโหลดถูกตรวจสอบ/ย่อด้วย Sharp แล้วเข้ารหัส Base64 อยู่ในไฟล์ JSON เดียวกับข้อมูลสลิป ขนาดต้นฉบับไม่เกิน 3 MB และภาพแสดงผลสูงสุด 1600px เหมาะสำหรับงานสาธิตที่มีข้อมูลไม่มาก
 
-ตารางทั้งหมดอยู่ใน PostgreSQL schema `art` เว็บใช้ session และการตรวจสิทธิ์จาก Server API ของแอปเอง
+เว็บใช้ Session และตรวจสิทธิ์จาก Server API ของแอปเอง ไฟล์ JSON ของ Blob ตั้งเป็น Private และอ่านผ่าน Server เท่านั้น
 
-เอกสารอ้างอิง: [Vercel Marketplace Storage](https://vercel.com/docs/marketplace-storage), [Postgres on Vercel](https://vercel.com/docs/postgres), [Neon for Vercel](https://vercel.com/marketplace/neon)
+เอกสารอ้างอิง: [Vercel Blob](https://vercel.com/docs/vercel-blob)
 
 ## ตรวจสอบ
 
@@ -93,11 +91,12 @@ npm run test:browser
 
 ## ขอบเขตและสิ่งที่ยังต้องตั้งค่า
 
-- ต้อง Import GitHub เข้า Vercel และเพิ่ม Neon Postgres จาก Vercel Marketplace เพื่อให้ข้อมูลออนไลน์คงอยู่
+- ต้อง Import GitHub เข้า Vercel และสร้าง Private Vercel Blob store เพื่อให้ข้อมูลออนไลน์คงอยู่
+- ไฟล์ JSON เหมาะกับงานส่งและผู้ใช้จำนวนน้อย หากมีหลายคนแก้ข้อมูลพร้อมกันอาจเกิดการเขียนทับกัน
 - QR จะไม่ปรากฏจนกว่าจะตั้งผู้รับ PromptPay จริง การแนบสลิปไม่ได้ยืนยันการรับเงินโดยอัตโนมัติ
 - คำสั่งซื้อรอชำระจะจองผลงานจนกว่าจะยกเลิก ไม่มีการหมดอายุการจองอัตโนมัติในรุ่นนี้
 - ไม่มีส่งอีเมลยืนยัน/รีเซ็ตรหัสผ่าน และไม่มี gateway ตรวจสลิปอัตโนมัติ
 - ฟีเจอร์เสริมในโจทย์ (ลายน้ำ ขายไฟล์ต้นฉบับ แบ่ง commission รับงานตามสั่ง รีวิว ถูกใจ ติดตาม และแนะนำภาพ) ยังไม่รวมในรุ่นขั้นต่ำนี้
 - ภาพเริ่มต้นเป็นงานสาธารณสมบัติ/CC0 พร้อมเครดิตที่ `/credits` ชื่อสินค้า ขนาด ราคา และโปรไฟล์นักศึกษาเป็นข้อมูลสมมติ ห้ามเสนอขายภาพตัวอย่างว่าเป็นผลงานต้นฉบับของนักศึกษา
 
-โครงสร้าง: `components/` หน้าจอ, `app/api/[...path]/route.ts` API, `lib/schema.ts` schema, `lib/auth.ts` session/permissions, `lib/db.ts` local/remote adapter, `scripts/setup-coursework.ts` เตรียมฐานข้อมูลบน Vercel อัตโนมัติ
+โครงสร้าง: `components/` หน้าจอ, `app/api/[...path]/route.ts` API, `lib/auth.ts` session/permissions, `lib/db.ts` ตัวอ่านและบันทึกไฟล์ JSON บน Vercel Blob

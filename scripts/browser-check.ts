@@ -3,7 +3,7 @@ import { spawn } from 'node:child_process';
 import path from 'node:path';
 import { mkdir, writeFile } from 'node:fs/promises';
 const port=3101, origin=`http://localhost:${port}`;
-const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p',String(port)],{cwd:process.cwd(),env:{...process.env,DATABASE_URL:'',VERCEL:'',APP_URL:origin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',`browser-${Date.now()}`),PROMPTPAY_ID:'',PROMPTPAY_NAME:''},stdio:'pipe',windowsHide:true});
+const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p',String(port)],{cwd:process.cwd(),env:{...process.env,BLOB_READ_WRITE_TOKEN:'',VERCEL:'',APP_URL:origin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',`browser-${Date.now()}`),PROMPTPAY_ID:'',PROMPTPAY_NAME:''},stdio:'pipe',windowsHide:true});
 let serverLog='';server.stdout.on('data',d=>serverLog+=d);server.stderr.on('data',d=>serverLog+=d);
 const results:string[]=[];const errors:string[]=[];
 async function main(){

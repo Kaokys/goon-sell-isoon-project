@@ -35,7 +35,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     if(resource==='payment_options')return json(paymentOptions());
     if(resource==='addresses')return await addressHandler(req,db,id);
 
-    if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!process.env.DATABASE_URL && !process.env.VERCEL,paymentConfigured:!!process.env.PROMPTPAY_ID,googleConfigured:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)}); }
+    if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL,paymentConfigured:!!process.env.PROMPTPAY_ID,googleConfigured:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)}); }
     if (resource==='auth' && method==='POST') {
       if (id==='logout') { const token=(await cookies()).get('sillapa_session')?.value; if(token) await db.query('DELETE FROM art.sessions WHERE token_hash=$1',[digest(token)]); (await cookies()).delete('sillapa_session'); return json({ok:true}); }
       const data = (id==='register'?registerSchema:loginSchema).parse(await body(req));
@@ -150,7 +150,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
         const [count]=await db.query(`SELECT COUNT(*)::int AS total FROM art.orders o WHERE ${where}`,values);
         const orders=await db.query(`SELECT o.*,u.name AS customer_name FROM art.orders o JOIN art.users u ON u.id=o.customer_id WHERE ${where} ORDER BY o.created_at DESC LIMIT ${size} OFFSET ${(page-1)*size}`,values);
         for(const order of orders)order.items=await db.query('SELECT * FROM art.order_items WHERE order_id=$1',[order.id]);
-        if(id){if(!orders[0])throw new AppError(404,'ไม่พบคำสั่งซื้อ');let qr=null;const pp=process.env.PROMPTPAY_ID;if(orders[0].payment_method==="promptpay" && pp && /^(0\d{9}|\d{13})$/.test(pp))qr=await QRCode.toDataURL(generatePayload(pp,{amount:orders[0].total/100}),{width:360,margin:2});return json({order:orders[0],qr,paymentName:process.env.PROMPTPAY_NAME||'',paymentId:pp||'',bank:{name:process.env.BANK_NAME||'',accountName:process.env.BANK_ACCOUNT_NAME||'',accountNumber:process.env.BANK_ACCOUNT_NUMBER||''},demo:!process.env.DATABASE_URL});}
+        if(id){if(!orders[0])throw new AppError(404,'ไม่พบคำสั่งซื้อ');let qr=null;const pp=process.env.PROMPTPAY_ID;if(orders[0].payment_method==="promptpay" && pp && /^(0\d{9}|\d{13})$/.test(pp))qr=await QRCode.toDataURL(generatePayload(pp,{amount:orders[0].total/100}),{width:360,margin:2});return json({order:orders[0],qr,paymentName:process.env.PROMPTPAY_NAME||'',paymentId:pp||'',bank:{name:process.env.BANK_NAME||'',accountName:process.env.BANK_ACCOUNT_NAME||'',accountNumber:process.env.BANK_ACCOUNT_NUMBER||''},demo:!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL});}
         return json({items:orders,total:count.total,page,pages:Math.ceil(count.total/size)});
       }
       return await db.transaction(async tx=>{

@@ -7,7 +7,7 @@ const origin='http://localhost:3100';
 const stamp=Date.now();
 const results:string[]=[];
 let serverLog='';
-const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p','3100'],{cwd:process.cwd(),env:{...process.env,DATABASE_URL:'',VERCEL:'',APP_URL:origin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',String(stamp)),PROMPTPAY_ID:'0812345678',PROMPTPAY_NAME:'TEST ONLY — DO NOT TRANSFER'},stdio:['ignore','pipe','pipe'],windowsHide:true});
+const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p','3100'],{cwd:process.cwd(),env:{...process.env,BLOB_READ_WRITE_TOKEN:'',VERCEL:'',APP_URL:origin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',String(stamp)),PROMPTPAY_ID:'0812345678',PROMPTPAY_NAME:'TEST ONLY — DO NOT TRANSFER'},stdio:['ignore','pipe','pipe'],windowsHide:true});
 server.stdout.on('data',d=>serverLog+=d);server.stderr.on('data',d=>serverLog+=d);
 class Client {
  cookie='';
@@ -114,7 +114,7 @@ async function main(){
  const temporary=await artist.request('artworks','POST',{...art,title:'Delete test artwork'},201);await artist.request(`artworks/${temporary.id}`,'DELETE');await artist.request(`artworks/${temporary.id}`,'GET',undefined,404);
  await admin.request('categories','POST',{name:`Unused category ${stamp}`});const unused=(await admin.request('categories')).items.find((c:any)=>c.name===`Unused category ${stamp}`);await admin.request(`categories/${unused.id}`,'DELETE');pass('Artwork soft deletion and unused category deletion');
  const logoutCookie=customer.cookie;await customer.request('auth/logout','POST',{});customer.cookie=logoutCookie;await customer.request('orders','GET',undefined,401);pass('Logout invalidates server-side session');
- await mkdir('docs',{recursive:true});await writeFile('docs/TEST-RESULTS.md',`# Integration test results\n\nExecuted: ${new Date().toISOString()}\n\nProduction Next.js server with isolated persistent PostgreSQL (PGlite) database. No live payment sent.\n\n${results.map(r=>`- PASS: ${r}`).join('\n')}\n\n${results.length} groups passed. Remote Neon connectivity and Vercel deployment are not covered without owner credentials.\n`);
+ await mkdir('docs',{recursive:true});await writeFile('docs/TEST-RESULTS.md',`# Integration test results\n\nExecuted: ${new Date().toISOString()}\n\nProduction Next.js server with isolated local test data. No live payment sent.\n\n${results.map(r=>`- PASS: ${r}`).join('\n')}\n\n${results.length} groups passed. Live Vercel Blob connectivity is not covered without the project store token.\n`);
  console.log(`\n${results.length} test groups passed.`);
 }
 main().catch(e=>{console.error(e);console.error(serverLog.slice(-5000));process.exitCode=1;}).finally(()=>{server.kill();});
