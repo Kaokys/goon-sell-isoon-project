@@ -46,7 +46,9 @@ npm run dev
 
 ## เส้นทางหลัก
 
-`/` แกลเลอรี · `/artists` ศิลปิน · `/artworks/:id` รายละเอียด · `/cart` ตะกร้า · `/orders` คำสั่งซื้อ · `/profile` โปรไฟล์ · `/studio` Dashboard · `/studio/artworks` จัดการผลงาน · `/studio/orders` จัดการออเดอร์ · `/studio/users` จัดการผู้ใช้ · `/studio/categories` หมวดหมู่ · `/studio/logs` ประวัติ
+`/` แกลเลอรี · `/artists` ศิลปิน · `/artworks/:id` รายละเอียด · `/cart` ตะกร้า · `/orders` คำสั่งซื้อ · `/profile` โปรไฟล์ · `/studio` พื้นที่ศิลปิน
+
+Admin Portal แยกที่ `/admin` พร้อมหน้าเข้าสู่ระบบเฉพาะแอดมิน: `/admin/artworks` อนุมัติผลงาน · `/admin/orders` จัดการออเดอร์ · `/admin/users` จัดการผู้ใช้ · `/admin/categories` หมวดหมู่ · `/admin/logs` ประวัติ
 
 ## ขึ้น Vercel + Supabase
 

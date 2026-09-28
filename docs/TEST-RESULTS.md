@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-09-24T13:02:25.869Z
+Executed: 2026-09-28T11:59:19.904Z
 
 Production Next.js server with isolated persistent PostgreSQL (PGlite) database. No live payment sent.
 
