@@ -12,6 +12,7 @@ async function main(){
  const browser=await chromium.launch({channel:process.env.PLAYWRIGHT_CHANNEL||'msedge',headless:true});
  try{
  const customer=await browser.newContext({viewport:{width:1440,height:1000}});const page=await customer.newPage();page.on('pageerror',e=>errors.push(e.message));
+ await page.goto(`${origin}/register`);await page.locator('.auth-form form button').click();await expect(page.locator('.field-error')).toHaveCount(3);await expect(page.locator('.error')).toHaveCount(0);expect(await page.locator('.field-error').first().evaluate(el=>getComputedStyle(el).color)).toBe('rgb(198, 40, 40)');results.push('Invalid registration fields show calm inline red text without an alert card');
  await page.goto(origin);await expect(page.locator('.art-card')).toHaveCount(7);await page.screenshot({path:'docs/screenshots/gallery-desktop.png',fullPage:true});
  await page.getByRole('button',{name:'ตัวกรอง',exact:true}).click();await page.getByPlaceholder('ชื่อผลงานหรือศิลปิน').fill('ดอกไม้');await expect(page.locator('.art-card')).toHaveCount(1);
  await page.getByRole('button',{name:'ล้างทั้งหมด',exact:true}).click();await expect(page.locator('.art-card')).toHaveCount(7);

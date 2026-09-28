@@ -1,9 +1,10 @@
 # Browser verification
 
-Executed: 2026-09-28T18:42:41.112Z
+Executed: 2026-09-28T21:26:53.891Z
 
 Microsoft Edge via Playwright, isolated production server/database; no actual payment.
 
+- PASS: Invalid registration fields show calm inline red text without an alert card
 - PASS: Gallery search, reset and sorting operate in the browser
 - PASS: Mobile gallery fits 390px width and filters can be expanded
 - PASS: Customer home shows shortcuts, latest order area, recommendations and mobile navigation
