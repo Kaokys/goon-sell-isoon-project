@@ -77,8 +77,10 @@ async function blobAdapter(): Promise<DB> {
   if (!stored) {
     const { seedLocal } = await import('./seed');
     await seedLocal(raw(pg,false));
-    await persist();
   }
+  const { syncSampleArt } = await import('./seed');
+  await syncSampleArt(raw(pg,false));
+  await persist();
   return db;
 }
 
@@ -97,8 +99,9 @@ export async function getDB(): Promise<DB> {
     });
     await pg.exec(schema);
     const db = adapter(pg);
-    const { seedLocal } = await import('./seed');
+    const { seedLocal, syncSampleArt } = await import('./seed');
     await seedLocal(db);
+    await syncSampleArt(db);
     return db;
   })().catch(error => { state.artDB = undefined; throw error; });
   return state.artDB;
