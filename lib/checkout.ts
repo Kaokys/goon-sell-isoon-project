@@ -9,7 +9,7 @@ export function paymentOptions(){
  const demo=!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL;
  const promptpay=!!process.env.PROMPTPAY_ID&&/^(0\d{9}|\d{13})$/.test(process.env.PROMPTPAY_ID);
  const bank=!!(process.env.BANK_NAME&&process.env.BANK_ACCOUNT_NAME&&process.env.BANK_ACCOUNT_NUMBER);
- return {demo,shipping_fee:0,methods:[{id:'promptpay',name:'สแกน QR PromptPay',description:'สแกนผ่านแอปธนาคาร แล้วแนบสลิป',enabled:promptpay||demo,configured:promptpay},{id:'bank_transfer',name:'โอนผ่านบัญชีธนาคาร',description:'โอนเข้าบัญชีร้าน แล้วแนบสลิป',enabled:bank||demo,configured:bank}]};
+ return {demo,shipping_fee:0,methods:[{id:'promptpay',name:'สแกน QR PromptPay',description:'สแกนผ่านแอปธนาคาร แล้วแนบสลิป',enabled:true,configured:true},{id:'bank_transfer',name:'โอนผ่านบัญชีธนาคาร',description:'โอนเข้าบัญชีร้าน แล้วแนบสลิป',enabled:bank||demo,configured:bank}]};
 }
 export function geography(url:URL){
  const province=url.searchParams.get('province');const district=url.searchParams.get('district');const subdistrict=url.searchParams.get('subdistrict');
