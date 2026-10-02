@@ -28,7 +28,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     const method = req.method;
     const url = new URL(req.url);
     if (method!=='GET') checkOrigin(req);
-    const methods:Record<string,string[]>= {addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
+    const methods:Record<string,string[]>= {addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['GET','PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
     if(!methods[resource]?.includes(method))throw new AppError(405,'ไม่รองรับวิธีเรียกใช้งานนี้');
     const db = await getDB();
     if(resource==='geography')return json(geography(url));
@@ -53,9 +53,11 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
         await createSession(db,user.id); return json({user:publicUser(user)});
       }
     }
+    if(resource==='profile' && method==='GET'){const viewer=await sessionUser();const key=id||viewer?.id;if(!key)throw new AppError(401,'กรุณาเข้าสู่ระบบ');const [profile]=await db.query('SELECT id,name,role,bio,university,avatar,cover,accent FROM art.users WHERE id=$1 AND active=true',[key]);if(!profile)throw new AppError(404,'ไม่พบโปรไฟล์');return json({profile});}
     if (resource==='profile' && method==='PATCH') {
       const user=await requireUser(); const v=profileSchema.parse(await body(req));
-      await db.transaction(async tx=>{await tx.query('UPDATE art.users SET name=$1,bio=$2,university=$3,artist_requested=$4 WHERE id=$5',[v.name,v.bio,v.university,user.role==='customer'?!!v.artist_requested:false,user.id]);await audit(tx,user.id,'update_profile','user',user.id,{fields:['name','bio','university','artist_requested']});});
+      for(const image of [v.avatar,v.cover]){if(image){const [owned]=await db.query("SELECT id FROM art.media WHERE id=$1 AND owner_id=$2 AND kind='profile'",[image.split('/').pop(),user.id]);if(!owned)throw new AppError(400,'กรุณาอัปโหลดภาพโปรไฟล์ของคุณเอง');}}
+      await db.transaction(async tx=>{await tx.query('UPDATE art.users SET name=$1,bio=$2,university=$3,artist_requested=$4,avatar=$6,cover=$7,accent=$8 WHERE id=$5',[v.name,v.bio,v.university,user.role==='customer'?!!v.artist_requested:false,user.id,v.avatar,v.cover,v.accent]);await audit(tx,user.id,'update_profile','user',user.id,{fields:['name','bio','university','artist_requested','avatar','cover','accent']});});
       return json({ok:true});
     }
     if (resource==='categories') {
@@ -112,7 +114,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       if(Number(req.headers.get('content-length')||0)>4*1024*1024)throw new AppError(413,'ไฟล์ต้องมีขนาดไม่เกิน 3 MB');
       const form=await req.formData();const file=form.get('file');const kind=form.get('kind');
       if(!(file instanceof File) || file.size>3*1024*1024 || file.size===0 || !['image/jpeg','image/png','image/webp'].includes(file.type))throw new AppError(400,'รองรับ JPG, PNG, WebP ขนาดไม่เกิน 3 MB');
-      if(!['art','slip'].includes(String(kind)))throw new AppError(400,'ชนิดไฟล์ไม่ถูกต้อง');
+      if(!['art','slip','profile'].includes(String(kind)))throw new AppError(400,'ชนิดไฟล์ไม่ถูกต้อง');
       if(kind==='art' && !['staff','admin'].includes(user.role))throw new AppError(403,'เฉพาะศิลปินเท่านั้น');
       let data:Buffer;try {data=await sharp(Buffer.from(await file.arrayBuffer()),{limitInputPixels:25000000}).rotate().resize({width:1600,height:1600,fit:'inside',withoutEnlargement:true}).jpeg({quality:88}).toBuffer();}catch{throw new AppError(400,'ไฟล์ภาพเสียหายหรือมีความละเอียดสูงเกินไป');}
       const key=randomUUID();await db.query('INSERT INTO art.media(id,owner_id,kind,data) VALUES($1,$2,$3,$4)',[key,user.id,kind,data]);return json({id:key,url:`/api/media/${key}`},201);
@@ -120,7 +122,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     if(resource==='media' && method==='GET') {
       const user=await sessionUser();
       const [file]=await db.query(`SELECT m.*,EXISTS(SELECT 1 FROM art.artworks a WHERE a.image='/api/media/' || m.id AND a.deleted=false AND a.status IN ('approved','reserved','sold')) AS published FROM art.media m WHERE m.id=$1`,[id]);
-      if(!file || !(user?.id===file.owner_id || user?.role==='admin' || (file.kind==='art' && file.published)))throw new AppError(404,'ไม่พบไฟล์');
+      if(!file || !(user?.id===file.owner_id || user?.role==='admin' || (file.kind==='art' && file.published) || (file.kind==='profile' && (await db.query("SELECT id FROM art.users WHERE active=true AND (avatar=$1 OR cover=$1)",['/api/media/'+id])).length>0)))throw new AppError(404,'ไม่พบไฟล์');
       return new Response(new Uint8Array(file.data),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
     }
     if(resource==='orders') {

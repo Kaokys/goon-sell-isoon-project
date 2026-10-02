@@ -2,7 +2,7 @@ import { createHash, randomBytes } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { getDB, type DB } from './db';
 export class AppError extends Error { constructor(public status: number, message: string) { super(message); } }
-export const publicUser = (u: any) => ({id:u.id,email:u.email,name:u.name,role:u.role,bio:u.bio,university:u.university,artist_requested:u.artist_requested});
+export const publicUser = (u: any) => ({id:u.id,email:u.email,name:u.name,role:u.role,bio:u.bio,university:u.university,artist_requested:u.artist_requested,avatar:u.avatar,cover:u.cover,accent:u.accent});
 export const digest = (token: string) => createHash('sha256').update(token).digest('hex');
 export async function sessionUser() {
   const token = (await cookies()).get('sillapa_session')?.value;
