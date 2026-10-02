@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-10-01T16:54:06.709Z
+Executed: 2026-10-02T11:06:27.401Z
 
 Production Next.js server with isolated local test data. No live payment sent.
 

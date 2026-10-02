@@ -61,6 +61,7 @@ ALTER TABLE art.users ADD COLUMN IF NOT EXISTS cover TEXT NOT NULL DEFAULT '';
 ALTER TABLE art.users ADD COLUMN IF NOT EXISTS accent TEXT NOT NULL DEFAULT '#3151e8';
 ALTER TABLE art.media DROP CONSTRAINT IF EXISTS media_kind_check;
 ALTER TABLE art.media ADD CONSTRAINT media_kind_check CHECK(kind IN ('art','slip','profile'));
+INSERT INTO art.categories(id,name) VALUES('illustration','ภาพประกอบ') ON CONFLICT(id) DO NOTHING;
 -- Application tables use a dedicated PostgreSQL schema.
 REVOKE ALL ON SCHEMA art FROM PUBLIC;
 `;
