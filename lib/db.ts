@@ -52,6 +52,8 @@ async function blobAdapter(): Promise<DB> {
     });
   }
 
+  await pg.exec("INSERT INTO art.categories(id,name) VALUES('illustration','ภาพประกอบ') ON CONFLICT DO NOTHING");
+
   let saving = Promise.resolve();
   const persist = async () => {
     const tables: Record<string,Row[]> = {};
@@ -98,6 +100,7 @@ export async function getDB(): Promise<DB> {
       transaction: async fn => client.transaction((tx: any) => fn(adapter(tx)))
     });
     await pg.exec(schema);
+    await pg.exec("INSERT INTO art.categories(id,name) VALUES('illustration','ภาพประกอบ') ON CONFLICT DO NOTHING");
     const db = adapter(pg);
     const { seedLocal, syncSampleArt } = await import('./seed');
     await seedLocal(db);
