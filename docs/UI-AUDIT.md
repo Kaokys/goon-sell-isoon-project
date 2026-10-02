@@ -32,3 +32,6 @@ Screenshots from this run: [Customer](ui-audit/customer-overview-390.png), [Arti
 Checks: TypeScript, production build, and 17 integration test groups. In-app Browser functional/visual checks described above; the standalone Playwright regression script was extended with navigation/menu assertions.
 
 Limits: this checks the listed screens and exercised flows, not every possible user dataset, every interaction combination, full screen-reader/contrast compliance, or external Google OAuth configuration. Wide data tables intentionally scroll within their region. Asset provenance is outside this UI repair pass.
+Final production-build spot checks: Admin login, client navigation from Admin to Profile retaining the role, tablet account menu, Escape, readable horizontally scrolling user table, all 8 credit rows, and mobile dashboard passed. See final-navigation.png, final-admin.png and admin-users-readable.png.
+
+Deployment: local commit created; push was blocked because GitHub port 443 was unreachable in the restricted execution environment. Production deployment is not claimed.
