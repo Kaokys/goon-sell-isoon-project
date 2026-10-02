@@ -49,3 +49,4 @@
 
 .table-wrap table{min-width:560px}.table-wrap .button{white-space:nowrap;overflow-wrap:normal}.table-wrap .table-small{white-space:nowrap}.table-wrap:focus-visible{outline:3px solid #95a6ff;outline-offset:3px}
 @media(max-width:600px){.table-wrap::before{content:'เลื่อนซ้าย–ขวาเพื่อดูข้อมูลทั้งหมด';display:block;padding:10px 12px;font-size:11px;color:#5e6570;background:#f8f9fb}.table-wrap td:first-child{min-width:180px}}
+.poster-preview.gallery-intro{margin:0;width:100%;min-width:0;border-radius:12px;height:clamp(440px,45vw,600px)}.poster-preview .hero-copy{left:5%;right:5%;max-width:90%}.poster-preview.gallery-intro h1{font-size:clamp(46px,6vw,86px)}

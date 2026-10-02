@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-10-02T13:41:38.008Z
+Executed: 2026-10-02T14:32:03.400Z
 
 Production Next.js server with isolated local test data. No live payment sent.
 
@@ -10,6 +10,7 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Invalid login and registration validation
 - PASS: Pending art is private; artists cannot edit another artist’s work
 - PASS: Uploads validate actual image bytes, size/type and uploader role; drafts stay private
+- PASS: Homepage poster: admin upload/save/reset, public published image, role protection and audit log
 - PASS: Artwork/category CRUD, validation, review and draft-to-public transitions
 - PASS: Search, category/price filters, price sort and non-overlapping pagination
 - PASS: Saved addresses: Thai geography validation, ownership, one default, deletion fallback and immutable order snapshot
@@ -22,4 +23,4 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Artwork soft deletion and unused category deletion
 - PASS: Logout invalidates server-side session
 
-17 groups passed. Live Vercel Blob connectivity is not covered without the project store token.
+18 groups passed. Live Vercel Blob connectivity is not covered without the project store token.

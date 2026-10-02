@@ -28,9 +28,21 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     const method = req.method;
     const url = new URL(req.url);
     if (method!=='GET') checkOrigin(req);
-    const methods:Record<string,string[]>= {addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['GET','PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
+    const methods:Record<string,string[]>= {site_settings:['GET','PATCH'],addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['GET','PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
     if(!methods[resource]?.includes(method))throw new AppError(405,'ไม่รองรับวิธีเรียกใช้งานนี้');
     const db = await getDB();
+    if(resource==='site_settings') {
+      if(method==='GET'){const [setting]=await db.query("SELECT image FROM art.site_settings WHERE id='homepage'");return json({image:setting?.image||'/art/art-1.jpg'});}
+      const user=await requireUser(['admin']);
+      const v=z.object({image:z.string().max(200)}).parse(await body(req));
+      if(v.image!=='/art/art-1.jpg'){
+        if(!/^\/api\/media\/[a-f0-9-]{36}$/.test(v.image))throw new AppError(400,'กรุณาอัปโหลดรูปโปสเตอร์');
+        const [file]=await db.query("SELECT id FROM art.media WHERE id=$1 AND kind='banner'",[v.image.split('/').pop()]);
+        if(!file)throw new AppError(400,'รูปโปสเตอร์ไม่ถูกต้อง');
+      }
+      await db.transaction(async tx=>{const [previous]=await tx.query("SELECT image FROM art.site_settings WHERE id='homepage'");await tx.query("INSERT INTO art.site_settings(id,image) VALUES('homepage',$1) ON CONFLICT(id) DO UPDATE SET image=EXCLUDED.image",[v.image]);await audit(tx,user.id,'update','site_settings','homepage',{before:previous?.image||'/art/art-1.jpg',after:v.image});});
+      return json({ok:true,image:v.image});
+    }
     if(resource==='geography')return json(geography(url));
     if(resource==='payment_options')return json(paymentOptions());
     if(resource==='addresses')return await addressHandler(req,db,id);
@@ -114,7 +126,8 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       if(Number(req.headers.get('content-length')||0)>4*1024*1024)throw new AppError(413,'ไฟล์ต้องมีขนาดไม่เกิน 3 MB');
       const form=await req.formData();const file=form.get('file');const kind=form.get('kind');
       if(!(file instanceof File) || file.size>3*1024*1024 || file.size===0 || !['image/jpeg','image/png','image/webp'].includes(file.type))throw new AppError(400,'รองรับ JPG, PNG, WebP ขนาดไม่เกิน 3 MB');
-      if(!['art','slip','profile'].includes(String(kind)))throw new AppError(400,'ชนิดไฟล์ไม่ถูกต้อง');
+      if(!['art','slip','profile','banner'].includes(String(kind)))throw new AppError(400,'ชนิดไฟล์ไม่ถูกต้อง');
+      if(kind==='banner' && user.role!=='admin')throw new AppError(403,'เฉพาะแอดมินเท่านั้น');
       if(kind==='art' && !['staff','admin'].includes(user.role))throw new AppError(403,'เฉพาะศิลปินเท่านั้น');
       let data:Buffer;try {data=await sharp(Buffer.from(await file.arrayBuffer()),{limitInputPixels:25000000}).rotate().resize({width:1600,height:1600,fit:'inside',withoutEnlargement:true}).jpeg({quality:88}).toBuffer();}catch{throw new AppError(400,'ไฟล์ภาพเสียหายหรือมีความละเอียดสูงเกินไป');}
       const key=randomUUID();await db.query('INSERT INTO art.media(id,owner_id,kind,data) VALUES($1,$2,$3,$4)',[key,user.id,kind,data]);return json({id:key,url:`/api/media/${key}`},201);
@@ -122,7 +135,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     if(resource==='media' && method==='GET') {
       const user=await sessionUser();
       const [file]=await db.query(`SELECT m.*,EXISTS(SELECT 1 FROM art.artworks a WHERE a.image='/api/media/' || m.id AND a.deleted=false AND a.status IN ('approved','reserved','sold')) AS published FROM art.media m WHERE m.id=$1`,[id]);
-      if(!file || !(user?.id===file.owner_id || user?.role==='admin' || (file.kind==='art' && file.published) || (file.kind==='profile' && (await db.query("SELECT id FROM art.users WHERE active=true AND (avatar=$1 OR cover=$1)",['/api/media/'+id])).length>0)))throw new AppError(404,'ไม่พบไฟล์');
+      if(!file || !(user?.id===file.owner_id || user?.role==='admin' || (file.kind==='banner' && (await db.query('SELECT id FROM art.site_settings WHERE image=$1',['/api/media/'+id])).length>0) || (file.kind==='art' && file.published) || (file.kind==='profile' && (await db.query("SELECT id FROM art.users WHERE active=true AND (avatar=$1 OR cover=$1)",['/api/media/'+id])).length>0)))throw new AppError(404,'ไม่พบไฟล์');
       return new Response(new Uint8Array(file.data),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
     }
     if(resource==='orders') {

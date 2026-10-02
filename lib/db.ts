@@ -6,7 +6,7 @@ export type Row = Record<string, any>;
 export interface DB { query<T extends Row = Row>(sql: string, params?: any[]): Promise<T[]>; transaction<T>(fn: (db: DB) => Promise<T>): Promise<T>; }
 const state = globalThis as unknown as { artDB?: Promise<DB> };
 
-const blobTables = ['users','sessions','categories','media','artworks','orders','order_items','audit_logs','rate_limits','addresses'] as const;
+const blobTables = ['users','sessions','categories','media','artworks','orders','order_items','audit_logs','rate_limits','addresses','site_settings'] as const;
 type BlobStore = { version: number; savedAt: string; tables: Record<string, Row[]> };
 
 function jsonValue(value: any): any {
