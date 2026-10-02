@@ -3,14 +3,14 @@ import { hashPassword } from './password';
 import { randomBytes } from 'node:crypto';
 
 const samplePieces = [
-  ['เมื่อมีลูกค้าสั่งมีม','portrait',3200,'ภาพมีมดิจิทัล',60,60,'สีหน้าของแมวเมื่อได้รับออร์เดอร์ให้ทำมีมใหม่แบบด่วนที่สุด'],
-  ['สนุกครั้งเดียว เข็ดเลย','portrait',2900,'ภาพมีมดิจิทัล',60,60,'Grumpy Cat กับประโยคประจำใจสำหรับวันที่ทุกอย่างดูสนุกเกินไป'],
-  ['วันจันทร์มาอีกแล้ว','portrait',2600,'ภาพมีมดิจิทัล',60,60,'สีหน้าของแมวที่พูดแทนใจเมื่อวันหยุดจบเร็วกว่าที่คิด'],
+  ['เมื่อมีลูกค้าสั่งมีม','painting',3200,'ภาพมีมดิจิทัล',60,60,'สีหน้าของแมวเมื่อได้รับออร์เดอร์ให้ทำมีมใหม่แบบด่วนที่สุด'],
+  ['สนุกครั้งเดียว เข็ดเลย','painting',2900,'ภาพมีมดิจิทัล',60,60,'Grumpy Cat กับประโยคประจำใจสำหรับวันที่ทุกอย่างดูสนุกเกินไป'],
+  ['วันจันทร์มาอีกแล้ว','painting',2600,'ภาพมีมดิจิทัล',60,60,'สีหน้าของแมวที่พูดแทนใจเมื่อวันหยุดจบเร็วกว่าที่คิด'],
   ['แมวทำงานแทนฉันที','painting',3500,'ภาพมีมดิจิทัล',60,60,'แมวคีย์บอร์ดกำลังช่วยจัดการงานที่ค้างอยู่ให้เสร็จแบบมืออาชีพ'],
-  ['โหมดอสูรแมว','portrait',3100,'ภาพมีมดิจิทัล',60,60,'เมื่อแมวธรรมดาเปิดโหมดจริงจังจนกลายเป็นเจ้าป่าในหนึ่งวินาที'],
-  ['ขอแอบดูหน่อย','portrait',2800,'ภาพถ่ายแนวมีม',60,60,'เจ้าดัชชุนด์มองผ่านรั้วด้วยสีหน้าสงสัยว่าอีกฝั่งกำลังทำอะไรกัน'],
-  ['ขอคำเดียวได้ไหม','still-life',3000,'ภาพถ่ายแนวมีม',60,60,'สายตาของน้องหมาที่พร้อมแลกทุกอย่างเพื่อคอร์นด็อกหนึ่งคำ'],
-  ['ไม่พอใจ แต่ยังน่ารัก','portrait',2400,'ภาพถ่ายแนวมีม',60,60,'แมวอ้วนหน้าบึ้งที่ยังรักษาความน่ารักไว้ได้เต็มร้อย']
+  ['โหมดอสูรแมว','painting',3100,'ภาพมีมดิจิทัล',60,60,'เมื่อแมวธรรมดาเปิดโหมดจริงจังจนกลายเป็นเจ้าป่าในหนึ่งวินาที'],
+  ['ขอแอบดูหน่อย','painting',2800,'ภาพถ่ายแนวมีม',60,60,'เจ้าดัชชุนด์มองผ่านรั้วด้วยสีหน้าสงสัยว่าอีกฝั่งกำลังทำอะไรกัน'],
+  ['ขอคำเดียวได้ไหม','painting',3000,'ภาพถ่ายแนวมีม',60,60,'สายตาของน้องหมาที่พร้อมแลกทุกอย่างเพื่อคอร์นด็อกหนึ่งคำ'],
+  ['ไม่พอใจ แต่ยังน่ารัก','painting',2400,'ภาพถ่ายแนวมีม',60,60,'แมวอ้วนหน้าบึ้งที่ยังรักษาความน่ารักไว้ได้เต็มร้อย']
 ] as const;
 
 const sampleCredits = [
@@ -42,7 +42,7 @@ export async function seedLocal(db: DB, remote = false) {
       ['demo-artist2','artist2@demo.local','ธนกฤต สีคราม','staff','ทดลองจังหวะของสี แสง และรูปทรงในชีวิตประจำวัน — โปรไฟล์สาธิต','สาขาทัศนศิลป์'],
       ['demo-customer','customer@demo.local','นักสะสมตัวอย่าง','customer','','']
     ]) await tx.query('INSERT INTO art.users(id,email,password_hash,name,role,bio,university) VALUES($1,$2,$3,$4,$5,$6,$7)',[id,email,password,name,role,bio,university]);
-    for (const [id,name] of [['painting','จิตรกรรม'],['landscape','ทิวทัศน์'],['portrait','ภาพบุคคล'],['still-life','หุ่นนิ่ง']])
+    for (const [id,name] of [['painting','งานศิลปะ']])
       await tx.query('INSERT INTO art.categories(id,name) VALUES($1,$2)',[id,name]);
     for (let i=0;i<samplePieces.length;i++) {
       const [title,category,price,technique,width,height,description] = samplePieces[i];
@@ -50,5 +50,14 @@ export async function seedLocal(db: DB, remote = false) {
       await tx.query(`INSERT INTO art.artworks(id,artist_id,category_id,title,description,technique,width,height,price,image,status,credit,source_url) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
       [`sample-${i+1}`,i%2?'demo-artist2':'demo-artist',category,title,description,technique,width,height,Number(price)*100,`/art/art-${i+1}.jpg`,i===7?'pending':'approved',credit,sourceUrl] );
     }
+  });
+}
+
+// Merge the old default categories without deleting any artworks or custom categories.
+export async function simplifyCategories(db: DB) {
+  await db.transaction(async tx=>{
+    await tx.query("INSERT INTO art.categories(id,name) VALUES('painting','งานศิลปะ') ON CONFLICT(id) DO UPDATE SET name=EXCLUDED.name");
+    await tx.query("UPDATE art.artworks SET category_id='painting' WHERE category_id IN ('illustration','landscape','portrait','still-life')");
+    await tx.query("DELETE FROM art.categories WHERE id IN ('illustration','landscape','portrait','still-life')");
   });
 }

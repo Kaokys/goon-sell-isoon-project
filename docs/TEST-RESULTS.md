@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-10-02T14:32:03.400Z
+Executed: 2026-10-02T17:01:41.927Z
 
 Production Next.js server with isolated local test data. No live payment sent.
 
@@ -8,6 +8,7 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Server-side role checks protect users, reports and audit logs
 - PASS: Cross-origin writes rejected
 - PASS: Invalid login and registration validation
+- PASS: One default art category and backward-compatible old category links
 - PASS: Pending art is private; artists cannot edit another artist’s work
 - PASS: Uploads validate actual image bytes, size/type and uploader role; drafts stay private
 - PASS: Homepage poster: admin upload/save/reset, public published image, role protection and audit log
@@ -23,4 +24,4 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Artwork soft deletion and unused category deletion
 - PASS: Logout invalidates server-side session
 
-18 groups passed. Live Vercel Blob connectivity is not covered without the project store token.
+19 groups passed. Live Vercel Blob connectivity is not covered without the project store token.

@@ -52,7 +52,7 @@ async function blobAdapter(): Promise<DB> {
     });
   }
 
-  await pg.exec("INSERT INTO art.categories(id,name) VALUES('illustration','ภาพประกอบ') ON CONFLICT DO NOTHING");
+
 
   let saving = Promise.resolve();
   const persist = async () => {
@@ -80,7 +80,8 @@ async function blobAdapter(): Promise<DB> {
     const { seedLocal } = await import('./seed');
     await seedLocal(raw(pg,false));
   }
-  const { syncSampleArt } = await import('./seed');
+  const { syncSampleArt, simplifyCategories } = await import('./seed');
+  await simplifyCategories(raw(pg,false));
   await syncSampleArt(raw(pg,false));
   await persist();
   return db;
@@ -100,10 +101,11 @@ export async function getDB(): Promise<DB> {
       transaction: async fn => client.transaction((tx: any) => fn(adapter(tx)))
     });
     await pg.exec(schema);
-    await pg.exec("INSERT INTO art.categories(id,name) VALUES('illustration','ภาพประกอบ') ON CONFLICT DO NOTHING");
+
     const db = adapter(pg);
-    const { seedLocal, syncSampleArt } = await import('./seed');
+    const { seedLocal, syncSampleArt, simplifyCategories } = await import('./seed');
     await seedLocal(db);
+    await simplifyCategories(db);
     await syncSampleArt(db);
     return db;
   })().catch(error => { state.artDB = undefined; throw error; });

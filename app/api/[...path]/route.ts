@@ -93,7 +93,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
         if(url.searchParams.get('manage')==='true') {if(!user || !['staff','admin'].includes(user.role))throw new AppError(403,'ไม่มีสิทธิ์เข้าถึง');if(user.role==='staff')add('a.artist_id=?',user.id);}
         else conditions.push(`a.status IN ('approved','reserved','sold') AND u.active=true`);
         if(url.searchParams.get('q'))add(`(a.title ILIKE '%' || ? || '%' OR u.name ILIKE '%' || $${values.length+1} || '%')`,url.searchParams.get('q')!.slice(0,100));
-        for(const [param,column] of [['category','category_id'],['artist','artist_id'],['status','status']])if(url.searchParams.get(param))add(`a.${column}=?`,url.searchParams.get(param));
+        for(const [param,column] of [['category','category_id'],['artist','artist_id'],['status','status']])if(url.searchParams.get(param)){const value=url.searchParams.get(param);add(`a.${column}=?`,param==='category'&&['illustration','landscape','portrait','still-life'].includes(value!)?'painting':value);}
         if(url.searchParams.get('max')){const n=Number(url.searchParams.get('max'));if(Number.isFinite(n)&&n>0)add('a.price<=?',Math.round(n*100));}
         const where=conditions.join(' AND ');const sort=({'price_asc':'a.price ASC','price_desc':'a.price DESC','oldest':'a.created_at ASC'} as any)[url.searchParams.get('sort')||'']||'a.created_at DESC';
         const [count]=await db.query(`SELECT COUNT(*)::int AS total FROM art.artworks a JOIN art.users u ON u.id=a.artist_id WHERE ${where}`,values);

@@ -34,6 +34,9 @@ async function main(){
  await guest.request('auth/login','POST',{email:'admin@demo.local',password:'wrong'},401);
  await guest.request('auth/register','POST',{name:'A',email:'invalid',password:'short'},400);pass('Invalid login and registration validation');
  const publicList=await guest.request('artworks');assert.equal(publicList.total,7);
+ assert.deepEqual((await guest.request('categories')).items.map((c:any)=>[c.id,c.name]),[['painting','งานศิลปะ']]);
+ for(const old of ['illustration','landscape','portrait','still-life'])assert.equal((await guest.request('artworks?category='+old)).total,7);
+ pass('One default art category and backward-compatible old category links');
  await guest.request('artworks/sample-8','GET',undefined,404);
  assert.equal((await artist.request('artworks?manage=true')).items.every((a:any)=>a.artist_id==='demo-artist'),true);
  await artist.request('artworks/sample-2','DELETE',undefined,403);pass('Pending art is private; artists cannot edit another artist’s work');
