@@ -7,7 +7,7 @@ import generatePayload from 'promptpay-qr';
 import { ZodError, z } from 'zod';
 import { addressHandler, geography, paymentOptions, formatAddress } from '@/lib/checkout';
 import { getDB, audit, type DB } from '@/lib/db';
-import { AppError, sessionUser, requireUser, publicUser, createSession, digest, rateLimit, checkOrigin } from '@/lib/auth';
+import { AppError, sessionUser, requireUser, publicUser, createSession, revokeSession, digest, rateLimit, checkOrigin } from '@/lib/auth';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { loginSchema, registerSchema, artworkSchema, orderSchema, profileSchema, userSchema } from '@/lib/validation';
 export const runtime = 'nodejs';
@@ -37,7 +37,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
 
     if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL,paymentConfigured:true,googleConfigured:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)}); }
     if (resource==='auth' && method==='POST') {
-      if (id==='logout') { const token=(await cookies()).get('sillapa_session')?.value; if(token) await db.query('DELETE FROM art.sessions WHERE token_hash=$1',[digest(token)]); (await cookies()).delete('sillapa_session'); return json({ok:true}); }
+      if (id==='logout') { const token=(await cookies()).get('sillapa_session')?.value; if(token) { await revokeSession(token); await db.query('DELETE FROM art.sessions WHERE token_hash=$1',[digest(token)]); } (await cookies()).delete('sillapa_session'); return json({ok:true}); }
       const data = (id==='register'?registerSchema:loginSchema).parse(await body(req));
       await rateLimit(db,`auth-ip:${req.headers.get('x-forwarded-for')?.split(',')[0]||'local'}`,100);
       await rateLimit(db,`auth-email:${data.email}`,12);
