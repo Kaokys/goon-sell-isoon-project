@@ -1,0 +1,1190 @@
+[
+  {
+    "role": "customer",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/gallery?category=painting",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/gallery?category=painting",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/gallery?category=painting",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/gallery?category=illustration",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/gallery?category=illustration",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/gallery?category=illustration",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/artists",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/artists",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/artists",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/artists/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/artists/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/artists/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/artworks/sample-2",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/artworks/sample-2",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/artworks/sample-2",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/cart",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/cart",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/cart",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/addresses",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/addresses",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/addresses",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/profiles/demo-customer",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/profiles/demo-customer",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/profiles/demo-customer",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/credits",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/credits",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/credits",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "customer",
+    "route": "/orders/77967c3e-d912-474f-93c2-14a1efec9844",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "customer",
+    "route": "/orders/77967c3e-d912-474f-93c2-14a1efec9844",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "customer",
+    "route": "/orders/77967c3e-d912-474f-93c2-14a1efec9844",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/profiles/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/profiles/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/profiles/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/artists/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/artists/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/artists/demo-artist",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/studio",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/studio",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/studio",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/studio/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/studio/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/studio/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "artist",
+    "route": "/studio/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "artist",
+    "route": "/studio/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "artist",
+    "route": "/studio/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin/users",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin/users",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin/users",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin/categories",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin/categories",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin/categories",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin/logs",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin/logs",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin/logs",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/admin/orders/77967c3e-d912-474f-93c2-14a1efec9844",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/admin/orders/77967c3e-d912-474f-93c2-14a1efec9844",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/admin/orders/77967c3e-d912-474f-93c2-14a1efec9844",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/admin/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/profile",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/profiles/demo-admin",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/profiles/demo-admin",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/profiles/demo-admin",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/studio",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/studio",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/studio",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/studio/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/studio/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/studio/artworks",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/studio/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/studio/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/studio/orders",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/studio/users",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/studio/users",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/studio/users",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/studio/categories",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/studio/categories",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/studio/categories",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  },
+  {
+    "role": "admin",
+    "route": "/studio/logs",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 1440
+  },
+  {
+    "role": "admin",
+    "route": "/studio/logs",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 768
+  },
+  {
+    "role": "admin",
+    "route": "/studio/logs",
+    "brokenImages": [],
+    "errors": [],
+    "orderLinks": [
+      "/studio/orders"
+    ],
+    "overflow": false,
+    "width": 390
+  }
+]

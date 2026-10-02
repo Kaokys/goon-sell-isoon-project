@@ -1,5 +1,5 @@
 'use client';
-import { createContext, useContext, useEffect, useState, useRef, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, useRef, useCallback, type ReactNode } from 'react';
 import { X, ChevronLeft, ChevronRight, LoaderCircle, ImagePlus, Check } from 'lucide-react';
 export type Item=Record<string,any>;
 export const money=(n:number|string)=>new Intl.NumberFormat('th-TH',{style:'currency',currency:'THB',maximumFractionDigits:2}).format(Number(n)/100);
@@ -9,6 +9,16 @@ export async function api(path:string,options?:RequestInit){const res=await fetc
 export const send=(path:string,data:any,method='POST')=>api(path,{method,body:JSON.stringify(data)});
 export function useData(path:string){const [data,setData]=useState<any>(null);const [error,setError]=useState('');const [version,setVersion]=useState(0);useEffect(()=>{let live=true;let timer:ReturnType<typeof setTimeout>;setError('');setData(null);const load=(attempt=0)=>api(path).then(d=>{if(live)setData(d);}).catch((e:Error&{status?:number})=>{if(!live)return;if(attempt<2&&(!e.status||e.status>=500)){timer=setTimeout(()=>load(attempt+1),500*(attempt+1));return;}setError(e.message);});load();return()=>{live=false;clearTimeout(timer);};},[path,version]);return {data,error,reload:()=>setVersion(v=>v+1)};}
 export const AppContext=createContext<any>(null);
+export function AppProvider({children}:{children:ReactNode}){
+ const [session,setSession]=useState<any>(null);const [sessionError,setSessionError]=useState('');const [cart,setCart]=useState<string[]>([]);const [ready,setReady]=useState(false);const [toast,setToast]=useState('');const sessionRequest=useRef(0);
+ const refreshSession=useCallback(async()=>{const request=++sessionRequest.current;try{const data=await api('session',{cache:'no-store'});if(request===sessionRequest.current){setSession(data);setSessionError('');}return data;}catch(e:any){if(request===sessionRequest.current)setSessionError(e.message);return null;}},[]);
+ useEffect(()=>{refreshSession();try{const stored=JSON.parse(localStorage.getItem('sillapa-cart')||'[]');if(Array.isArray(stored))setCart(stored.filter(v=>typeof v==='string').slice(0,20));}catch{}setReady(true);},[refreshSession]);
+ useEffect(()=>{if(ready)localStorage.setItem('sillapa-cart',JSON.stringify(cart));},[cart,ready]);
+ useEffect(()=>{if(toast){const timer=setTimeout(()=>setToast(''),3500);return()=>clearTimeout(timer);}},[toast]);
+ const logout=async()=>{await send('auth/logout',{});sessionRequest.current++;setSession((current:any)=>({...current,user:null}));setSessionError('');};
+ const addToCart=(id:string)=>{setCart(current=>current.includes(id)?current:[...current,id]);setToast('เพิ่มผลงานในตะกร้าแล้ว');};
+ return <AppContext.Provider value={{user:session?.user,session,sessionError,cart,setCart,addToCart,notify:setToast,refreshSession,logout}}>{children}{toast&&<div className="toast" role="status"><Check size={19}/>{toast}</div>}</AppContext.Provider>;
+}
 export const useApp=()=>useContext(AppContext);
 export function Badge({status}:{status:string}){return <span className={`badge ${status}`}>{statusNames[status]||status}</span>;}
 export function Loading(){return <div className="loading" role="status"><LoaderCircle className="spin" size={22}/> กำลังโหลดข้อมูล…</div>;}
