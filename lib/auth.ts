@@ -33,8 +33,7 @@ export async function createSession(db: DB, userId: string) {
     const [user] = await db.query('SELECT role FROM art.users WHERE id=$1',[userId]);
     await put(`sillapa/sessions/${digest(token)}.json`,JSON.stringify({userId,role:user.role,expiresAt:Date.now()+SESSION_MAX_AGE*1000}),{access:'private',contentType:'application/json',addRandomSuffix:false,allowOverwrite:true});
   }
-  await db.query(`DELETE FROM art.sessions WHERE expires_at<now()`);
-  await db.query(`INSERT INTO art.sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+($3 * interval '1 second'))`,[digest(token),userId,SESSION_MAX_AGE]);
+  await db.transaction(async tx=>{await tx.query(`DELETE FROM art.sessions WHERE expires_at<now()`);await tx.query(`INSERT INTO art.sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+($3 * interval '1 second'))`,[digest(token),userId,SESSION_MAX_AGE]);});
   (await cookies()).set('sillapa_session',token,{httpOnly:true,secure:!!process.env.VERCEL || process.env.APP_URL?.startsWith('https://'),sameSite:'lax',path:'/',maxAge:SESSION_MAX_AGE});
 }
 export async function revokeSession(token: string) {

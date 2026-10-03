@@ -6,7 +6,7 @@ import QRCode from 'qrcode';
 import generatePayload from 'promptpay-qr';
 import { ZodError, z } from 'zod';
 import { addressHandler, geography, paymentOptions, formatAddress } from '@/lib/checkout';
-import { getDB, audit, type DB } from '@/lib/db';
+import { getDB, withDBRequest, audit, type DB } from '@/lib/db';
 import { AppError, sessionUser, requireUser, publicUser, createSession, revokeSession, digest, rateLimit, checkOrigin } from '@/lib/auth';
 import { hashPassword, verifyPassword } from '@/lib/password';
 import { loginSchema, registerSchema, artworkSchema, orderSchema, profileSchema, userSchema } from '@/lib/validation';
@@ -145,7 +145,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       if(!file)throw new AppError(404,'ไม่พบไฟล์');
       const publicImage=(file.kind==='art'&&file.published)||(file.kind==='banner'&&(await db.query('SELECT id FROM art.site_settings WHERE image=$1',['/api/media/'+id])).length>0)||(file.kind==='profile'&&(await db.query('SELECT id FROM art.users WHERE active=true AND (avatar=$1 OR cover=$1)',['/api/media/'+id])).length>0);
       if(!publicImage){const user=await sessionUser();if(user?.id!==file.owner_id&&user?.role!=='admin')throw new AppError(404,'ไม่พบไฟล์');}
-      return new Response(new Uint8Array(file.data),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
+      return new Response(new Uint8Array(file.data),{headers:{'Content-Type':'image/jpeg','Cache-Control':publicImage?'public, max-age=300':'private, no-store','X-Content-Type-Options':'nosniff'}});
     }
     if(resource==='orders') {
       const user=await requireUser();
@@ -213,9 +213,11 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
   } catch(error:any) {
     if(error instanceof AppError)return json({error:error.message},error.status);
     if(error instanceof ZodError)return json({error:error.issues.map(i=>`${fieldLabels[String(i.path[0])]||'ข้อมูล'}: ${i.message.replace(/\bstring\b/g,'ข้อความ').replace(/\bnumber\b/g,'ตัวเลข')}`).join(' · ')},400);
+    if(error.code==='BLOB_CONFLICT')return json({error:'ข้อมูลกำลังถูกแก้ไข กรุณาลองอีกครั้ง'},409);
     if(error.code==='23505')return json({error:'ข้อมูลนี้มีอยู่แล้ว กรุณาตรวจสอบอีเมลหรือชื่อ'},409);
     if(error.code==='23503')return json({error:'รายการนี้ยังถูกใช้งานอยู่ หรือข้อมูลอ้างอิงไม่ถูกต้อง'},409);
     console.error('API error:',error.message);return json({error:'ระบบยังไม่พร้อม กรุณาลองใหม่ หรือตรวจสอบการตั้งค่าฐานข้อมูล'},500);
   }
 }
-export { handle as GET, handle as POST, handle as PATCH, handle as DELETE };
+const handler = (...args:Parameters<typeof handle>) => withDBRequest(()=>handle(...args));
+export { handler as GET, handler as POST, handler as PATCH, handler as DELETE };

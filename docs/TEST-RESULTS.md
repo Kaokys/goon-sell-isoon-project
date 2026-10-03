@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-10-03T10:35:51.011Z
+Executed: 2026-10-03T15:00:23.192Z
 
 Production Next.js server with isolated local test data. No live payment sent.
 
@@ -29,11 +29,3 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Logout invalidates server-side session
 
 23 groups passed. Live Vercel Blob connectivity is not covered without the project store token.
-
-## Live catalogue verification
-
-Verified separately on localhost:3102 and https://sillapa.vercel.app after deployment: two active artists, eight approved internet meme artworks, four artworks per artist. The original blue and green avatar URLs remained unchanged. The portraits appear on artist listings and details; the homepage poster and artwork gallery use meme images from Tenor. Source posts and uploader names are recorded in public/art/attributions.json. Artworks use still GIF frames for lightweight previews.
-
-![Artist portraits on Vercel](ux-final/benjamin-artist-portraits.png)
-
-![Eight internet meme artworks on Vercel](ux-final/benjamin-meme-artworks.png)

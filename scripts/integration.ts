@@ -157,7 +157,12 @@ async function main(){
  await other.login(`test-${stamp}@example.test`,'IntegrationPass!2026');assert.equal((await other.request('session')).user.role,'staff');
  await admin.request(`users/${otherUser.id}`,'PATCH',{name:'Approved artist',role:'staff',active:false});assert.equal((await other.request('session')).user,null);
  await admin.request('users/demo-admin','PATCH',{name:'Admin',role:'customer',active:true},400);pass('Profile requests, role promotion, session invalidation, deactivation and self-lockout prevention');
- const temporary=await artist.request('artworks','POST',{...art,title:'Delete test artwork'},201);await artist.request(`artworks/${temporary.id}`,'DELETE');await artist.request(`artworks/${temporary.id}`,'GET',undefined,404);
+ const temporary=await artist.request('artworks','POST',{...art,title:'Delete test artwork'},201);
+ await admin.request(`artworks/${temporary.id}/review`,'PATCH',{status:'approved'});
+ assert.ok((await guest.request('artworks?q=Delete%20test')).items.some((item:any)=>item.id===temporary.id));
+ await artist.request(`artworks/${temporary.id}`,'DELETE');await artist.request(`artworks/${temporary.id}`,'GET',undefined,404);
+ assert.equal((await guest.request('artworks?q=Delete%20test')).items.some((item:any)=>item.id===temporary.id),false);
+ assert.equal((await artist.request('artworks?manage=1&q=Delete%20test')).items.some((item:any)=>item.id===temporary.id),false);
  await admin.request('categories','POST',{name:`Unused category ${stamp}`});const unused=(await admin.request('categories')).items.find((c:any)=>c.name===`Unused category ${stamp}`);await admin.request(`categories/${unused.id}`,'DELETE');pass('Artwork soft deletion and unused category deletion');
  const logoutCookie=customer.cookie;await customer.request('auth/logout','POST',{});customer.cookie=logoutCookie;await customer.request('orders','GET',undefined,401);pass('Logout invalidates server-side session');
  await mkdir('docs',{recursive:true});await writeFile('docs/TEST-RESULTS.md',`# Integration test results\n\nExecuted: ${new Date().toISOString()}\n\nProduction Next.js server with isolated local test data. No live payment sent.\n\n${results.map(r=>`- PASS: ${r}`).join('\n')}\n\n${results.length} groups passed. Live Vercel Blob connectivity is not covered without the project store token.\n`);
