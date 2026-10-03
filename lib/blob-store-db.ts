@@ -32,7 +32,7 @@ export async function createSnapshotDB(storage:SnapshotStorage){
   if(!force&&Date.now()-checkedAt<1000)return;
   const current=await storage.read(etag);checkedAt=Date.now();
   if(current?.snapshot){await restore(current.snapshot);etag=current.etag;}
-  else if(current)etag=current.etag;
+  else if(current){if(current.etag)etag=current.etag;}
   else if(etag)throw new Error('Database snapshot is missing');
  };
  const save=async(client:any)=>{

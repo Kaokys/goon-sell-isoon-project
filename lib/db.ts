@@ -17,7 +17,9 @@ async function blobAdapter(): Promise<DB> {
     read:async etag=>{
       const stored=await get(pathname,{access:'private',useCache:false,...(etag?{ifNoneMatch:etag}:{})});
       if(!stored)return null;
-      return {etag:stored.blob.etag,...(stored.stream?{snapshot:JSON.parse(await new Response(stored.stream as any).text())}:{})};
+      const currentETag=stored.blob.etag||etag;
+      if(!currentETag)throw new Error('Database response is missing its version');
+      return {etag:currentETag,...(stored.stream?{snapshot:JSON.parse(await new Response(stored.stream as any).text())}:{})};
     },
     write:async(snapshot,etag)=>{
       try {const saved=await put(pathname,JSON.stringify(snapshot),{access:'private',contentType:'application/json',addRandomSuffix:false,allowOverwrite:!!etag,...(etag?{ifMatch:etag}:{})});return saved.etag;}

@@ -6,6 +6,8 @@ async function main(){
  const a=await createSnapshotDB(storage),b=await createSnapshotDB(storage);
  try {
   assert.equal(writes,1,'a read-only cold start must not overwrite the store');
+  const originalRead=storage.read;storage.read=async etag=>{const result=await originalRead(etag);return result&&!result.snapshot?{etag:''}:result;};
+  await a.refresh!();
   await a.query("UPDATE art.artworks SET deleted=true WHERE id='sample-1'");
   await b.query("INSERT INTO art.categories(id,name) VALUES('other-write','Other writer')");
   assert.equal(saved!.tables.artworks.find(x=>x.id==='sample-1')!.deleted,true,'a stale warm worker must not resurrect deleted artwork');
