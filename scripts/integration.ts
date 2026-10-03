@@ -9,6 +9,7 @@ const results:string[]=[];
 let serverLog='';
 const server=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p','3100'],{cwd:process.cwd(),env:{...process.env,BLOB_READ_WRITE_TOKEN:'',VERCEL:'',APP_URL:origin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',String(stamp)),PROMPTPAY_ID:'0812345678',PROMPTPAY_NAME:'TEST ONLY — DO NOT TRANSFER'},stdio:['ignore','pipe','pipe'],windowsHide:true});
 server.stdout.on('data',d=>serverLog+=d);server.stderr.on('data',d=>serverLog+=d);
+const shellOrigin='http://localhost:3103';const shellServer=spawn(process.execPath,['node_modules/next/dist/bin/next','start','-p','3103'],{cwd:process.cwd(),env:{...process.env,BLOB_READ_WRITE_TOKEN:'',VERCEL:'1',APP_URL:shellOrigin,LOCAL_DB_PATH:path.join(process.cwd(),'.data','tests',String(stamp)+'-shell')},stdio:['ignore','pipe','pipe'],windowsHide:true});shellServer.stdout.on('data',d=>serverLog+='[serverless] '+d);shellServer.stderr.on('data',d=>serverLog+='[serverless] '+d);
 class Client {
  cookie='';
  async request(route:string,method='GET',data?:any,expected=200,customOrigin=origin){
@@ -24,6 +25,11 @@ class Client {
 function pass(label:string){results.push(label);console.log(`PASS ${label}`);}
 async function main(){
  for(let i=0;i<90;i++){try{const r=await fetch(`${origin}/api/session`);if(r.ok)break;}catch{}if(i===89)throw new Error(`Server failed to start: ${serverLog}`);await new Promise(r=>setTimeout(r,1000));}
+ for(let i=0;i<30;i++){try{const ready=await fetch(shellOrigin+'/api/session');if(ready.ok)break;}catch{}if(i===29)throw new Error('Serverless shell failed to start: '+serverLog);await new Promise(r=>setTimeout(r,1000));}
+ const shell=await fetch(shellOrigin+'/gallery',{headers:{cookie:'sillapa_session=unverified-test-token'}});assert.equal(shell.status,200);assert.ok((await shell.text()).includes('account-pending'));
+ const guestSession=await fetch(shellOrigin+'/api/session');assert.equal(guestSession.status,200);assert.equal((await guestSession.json()).user,null);
+ for(const resource of ['geography','payment_options']){const response=await fetch(shellOrigin+'/api/'+resource);assert.equal(response.status,200,resource+' must not need database startup');}
+ const noDatabase=await fetch(shellOrigin+'/api/artworks');assert.equal(noDatabase.status,500);pass('Vercel page shell, guest session, geography and payment options render without database startup; no unverified user is exposed');
  const guest=new Client(),admin=new Client(),artist=new Client(),customer=new Client(),other=new Client();
  const notFound=await fetch(origin+'/missing-ux-page');assert.equal(notFound.status,404);assert.ok((await notFound.text()).includes('ไม่พบหน้านี้'));
  await guest.request('ux_metrics','POST',{type:'cls',value:0.02,route:'/gallery',code:''});await guest.request('ux_metrics','POST',{type:'runtime_error',value:0,route:'/orders/:id',code:'TypeError'});await guest.request('ux_metrics','POST',{type:'runtime_error',value:0,route:'/orders?secret=private',code:''},400);await guest.request('ux_metrics','POST',{type:'cls',value:0,route:'/gallery',code:''},403,'https://evil.example');pass('Helpful HTTP 404 and bounded, validated same-origin performance/error reporting');
@@ -142,4 +148,4 @@ async function main(){
  await mkdir('docs',{recursive:true});await writeFile('docs/TEST-RESULTS.md',`# Integration test results\n\nExecuted: ${new Date().toISOString()}\n\nProduction Next.js server with isolated local test data. No live payment sent.\n\n${results.map(r=>`- PASS: ${r}`).join('\n')}\n\n${results.length} groups passed. Live Vercel Blob connectivity is not covered without the project store token.\n`);
  console.log(`\n${results.length} test groups passed.`);
 }
-main().catch(e=>{console.error(e);console.error(serverLog.slice(-5000));process.exitCode=1;}).finally(()=>{server.kill();});
+main().catch(e=>{console.error(e);console.error(serverLog.slice(-5000));process.exitCode=1;}).finally(()=>{server.kill();shellServer.kill();});

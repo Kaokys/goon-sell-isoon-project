@@ -1,9 +1,10 @@
 # Integration test results
 
-Executed: 2026-10-03T08:31:21.580Z
+Executed: 2026-10-03T08:47:04.771Z
 
 Production Next.js server with isolated local test data. No live payment sent.
 
+- PASS: Vercel page shell, guest session, geography and payment options render without database startup; no unverified user is exposed
 - PASS: Helpful HTTP 404 and bounded, validated same-origin performance/error reporting
 - PASS: Persistent 30-day session cookie restores the same account in a new client
 - PASS: Registration ignores injected role; new users are customers
@@ -26,4 +27,4 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Artwork soft deletion and unused category deletion
 - PASS: Logout invalidates server-side session
 
-21 groups passed. Live Vercel Blob connectivity is not covered without the project store token.
+22 groups passed. Live Vercel Blob connectivity is not covered without the project store token.

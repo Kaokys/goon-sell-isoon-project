@@ -29,7 +29,7 @@ Scope: existing customer, artist and admin application. Production build tested 
 
 ## Journey evidence
 
-1. Homepage / shared navigation — inspected desktop baseline. **Improved:** shared layout retained, local assets and initial server session reduce extra loading.
+1. Homepage / shared navigation — inspected desktop baseline. **Improved:** shared layout retained, local assets reduce extra loading. Local server session initialization avoids a redundant lookup; Vercel renders the page shell first and resolves the existing HttpOnly session through the API, avoiding database work before the initial document. The pending account control is a skeleton, not an incorrect guest login button.
 2. Browse → search → sort — **Verified:** query “แมว” produced two results and ascending price order; responsive WebP currentSrc loaded.
 3. Detail → back → refresh → forward — **Verified:** search/sort survived back and hard reload, forward returned to artwork detail.
 4. Cart / checkout — **Verified:** item and note survived navigation; unloaded totals show a dash and confirmation stays disabled. Test note was cleared; no order placed through the browser.
@@ -39,13 +39,15 @@ Scope: existing customer, artist and admin application. Production build tested 
 
 ## Verification and remaining scope
 
-`npm run build` includes TypeScript validation. `npm run test:integration`: 21 groups passed with an isolated local database. See [TEST-RESULTS.md](TEST-RESULTS.md).
+`npm run build` includes TypeScript validation. `npm run test:integration`: 22 groups passed with an isolated local database. See [TEST-RESULTS.md](TEST-RESULTS.md).
 
 The original browser tab became blocked by a native confirmation. Testing recovered in a fresh visible in-app browser tab. The new inline discard control, login/logout and role-specific pages were then tested. Browser screenshots and sampled DOM checks supplement the API integration suite; they do not replace a formal automated accessibility or real-device audit.
 
 The browser console in the fresh test tab reported no errors/warnings during the checked journeys.
 
 A final local artist-detail trace after reserving page height reported CLS 0.0014; gallery trace reported CLS 0. These are individual local observations, not field performance scores.
+
+A post-push Vercel gallery smoke check showed the new h1 gallery and seven published artworks with the existing admin session restored; the new WebP asset returned HTTP 200. Opening that deployment initially exceeded the browser navigation timeout, so serverless session lookup was moved after document rendering. Guest session, payment options and geography now avoid unnecessary database startup.
 
 No promise of zero latency or zero layout shift is made. Vercel cold starts, Blob connectivity, deployment status and field performance need verification against the live deployment; local test results do not cover them. Google login still depends on the existing Google OAuth environment configuration.
 

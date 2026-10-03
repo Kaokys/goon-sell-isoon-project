@@ -85,3 +85,5 @@ html{scroll-padding-top:108px}
 
 :root{--muted:#595959}.upload{position:relative}.upload input{position:absolute;width:1px;height:1px;padding:0;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap}.upload:focus-within{outline:3px solid #3151e8;outline-offset:3px}
 .site-main{min-height:calc(100dvh - 160px)}@media(max-width:800px){.site-main{min-height:calc(100dvh - 120px)}}
+
+.account-pending{display:inline-flex;width:100px;min-height:32px;align-items:center}.account-pending .skeleton-line{margin:0;width:90px}@media(max-width:800px){.account-pending{display:none}}

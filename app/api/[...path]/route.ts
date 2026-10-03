@@ -38,6 +38,9 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       const metric=z.object({type:z.enum(['lcp','cls','navigation','runtime_error','slow_api','api_error']),value:z.number().finite().min(0).max(3600000),route:z.string().max(120).regex(/^\/[a-z/:_-]*$/),code:z.string().max(60).regex(/^[a-zA-Z0-9_:-]*$/)}).parse(await body(req));
       console.info('[sillapa-ux]',JSON.stringify(metric));return json({ok:true});
     }
+    if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL,paymentConfigured:true,googleConfigured:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)}); }
+    if(resource==='geography')return json(geography(url));
+    if(resource==='payment_options')return json(paymentOptions());
     const db = await getDB();
     if(resource==='site_settings') {
       if(method==='GET'){const [setting]=await db.query("SELECT image FROM art.site_settings WHERE id='homepage'");return json({image:setting?.image||'/art/art-1.jpg'});}
@@ -51,11 +54,8 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       await db.transaction(async tx=>{const [previous]=await tx.query("SELECT image FROM art.site_settings WHERE id='homepage'");await tx.query("INSERT INTO art.site_settings(id,image) VALUES('homepage',$1) ON CONFLICT(id) DO UPDATE SET image=EXCLUDED.image",[v.image]);await audit(tx,user.id,'update','site_settings','homepage',{before:previous?.image||'/art/art-1.jpg',after:v.image});});
       return json({ok:true,image:v.image});
     }
-    if(resource==='geography')return json(geography(url));
-    if(resource==='payment_options')return json(paymentOptions());
     if(resource==='addresses')return await addressHandler(req,db,id);
 
-    if (resource==='session' && method==='GET') { const user=await sessionUser(); return json({user:user?publicUser(user):null,demo:!!process.env.BLOB_READ_WRITE_TOKEN||!process.env.VERCEL,paymentConfigured:true,googleConfigured:!!(process.env.GOOGLE_CLIENT_ID&&process.env.GOOGLE_CLIENT_SECRET)}); }
     if (resource==='auth' && method==='POST') {
       if (id==='logout') { const token=(await cookies()).get('sillapa_session')?.value; if(token) { await revokeSession(token); await db.query('DELETE FROM art.sessions WHERE token_hash=$1',[digest(token)]); } (await cookies()).delete('sillapa_session'); return json({ok:true}); }
       const data = (id==='register'?registerSchema:loginSchema).parse(await body(req));
