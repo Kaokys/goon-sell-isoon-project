@@ -9,26 +9,42 @@ async function call(path,method='GET',data,cookie=''){
 }
 const admin=(await call('auth/login','POST',{email:'admin@demo.local',password})).cookie;
 const specs=[['benjamin.blue@demo.local','เบนจามินยาฮู','blue','#168bd2'],['benjamin.green@demo.local','เบนจามินเทนนอสัน','green','#36b52b']];
-const users=(await call('users?size=100', 'GET',undefined,admin)).data.items;
+const catalog=JSON.parse(await fs.readFile('public/art/attributions.json','utf8'));
+async function listAll(resource,cookie=''){
+ const items=[];for(let page=1;;page++){const result=(await call(resource+(resource.includes('?')?'&':'?')+'page='+page,'GET',undefined,cookie)).data;items.push(...result.items);if(page>=(result.pages||1))return items;}
+}
+const users=await listAll('users',admin);
+const keep=[];
 for(const [email,name,color,accent] of specs){
  let user=users.find(u=>u.email===email);
- if(!user){await call('auth/register','POST',{email,name,password,artist_requested:true});user=(await call('users?size=100','GET',undefined,admin)).data.items.find(u=>u.email===email);}
- await call('users/'+user.id,'PATCH',{name,role:'staff',active:true},admin);
+ if(!user){await call('auth/register','POST',{email,name,password,artist_requested:true});user=(await listAll('users',admin)).find(u=>u.email===email);}
+ if(!user)throw Error('Artist account missing');
+ keep.push(user.id);
+ if(user.role!=='staff'||!user.active)await call('users/'+user.id,'PATCH',{name,role:'staff',active:true},admin);
  const artist=(await call('auth/login','POST',{email,password})).cookie;
- async function upload(kind,cookie){const form=new FormData();form.set('kind',kind);form.set('file',new Blob([await fs.readFile('public/art/'+color+'.jpg')],{type:'image/jpeg'}),color+'.jpg');return (await call('upload','POST',form,cookie)).data.url;}
- const avatar=await upload('profile',artist);
- await call('profile','PATCH',{name,bio:'ศิลปินมีม'+(color==='blue'?'สีฟ้า':'สีเขียว')+' — บัญชีสำหรับโปรเจกต์สาธิต',university:'',avatar,cover:'',accent},artist);
- const existing=(await call('artworks?manage=true&size=100','GET',undefined,artist)).data.items;
- if(!existing.length){const image=await upload('art',artist);const created=(await call('artworks','POST',{title:name+' — พลัง'+(color==='blue'?'สีฟ้า':'สีเขียว'),description:'ภาพมีมที่ผู้ใช้แนบสำหรับโปรเจกต์สาธิต ของ '+name,category_id:'painting',technique:'ภาพดิจิทัล',width:60,height:90,price:3000,image},artist)).data;
- await call('artworks/'+created.id+'/review','PATCH',{status:'approved',note:'อนุมัติผลงานตามคำขอของเจ้าของโปรเจกต์'},admin);}
- if(color==='blue'){const image=await upload('banner',admin);await call('site_settings','PATCH',{image},admin);}
- console.log('Published:',name,email);
+ async function upload(kind,cookie,filename){const form=new FormData();form.set('kind',kind);form.set('file',new Blob([await fs.readFile('public/art/'+filename)],{type:'image/jpeg'}),filename);return (await call('upload','POST',form,cookie)).data.url;}
+ const profile=(await call('profile','GET',undefined,artist)).data.profile;
+ if(!profile.avatar){const avatar=await upload('profile',artist,color+'.jpg');await call('profile','PATCH',{name,bio:'ศิลปินมีม'+(color==='blue'?'สีฟ้า':'สีเขียว')+' — บัญชีสำหรับโปรเจกต์สาธิต',university:'',avatar,cover:'',accent},artist);}
+ const existing=await listAll('artworks?manage=true',artist);
+ for(const piece of catalog.filter(piece=>piece.color===color)){
+  const previous=existing.find(a=>a.title===piece.title&&a.description.includes(piece.source_url));
+  if(previous?.status==='approved'){console.log('Already approved:',piece.title);continue;}
+  const image=await upload('art',artist,piece.filename);
+  const created=(await call('artworks','POST',{title:piece.title,description:'ภาพนิ่งจาก GIF มีมบน Tenor ใช้เป็นผลงานสาธิตของ '+name+' — ต้นทาง: '+piece.source_url,category_id:'painting',technique:'ภาพมีมจาก GIF',width:60,height:60,price:3000,image},artist)).data;
+  await call('artworks/'+created.id+'/review','PATCH',{status:'approved',note:'อนุมัติภาพมีมสาธิตจากอินเทอร์เน็ต'},admin);
+  console.log('Published:',name,piece.title);
+ }
+ const expectedTitles=new Set(catalog.filter(piece=>piece.color===color).map(piece=>piece.title));
+ for(const previous of existing.filter(a=>!expectedTitles.has(a.title))){if(['sold','reserved'].includes(previous.status))throw Error('Cannot remove artwork in an order: '+previous.title);await call('artworks/'+previous.id,'DELETE',undefined,admin);}
+ if(profile.avatar&&(await call('profile','GET',undefined,artist)).data.profile.avatar!==profile.avatar)throw Error('Existing profile image changed');
 }
-const keep=(await call('users?size=100','GET',undefined,admin)).data.items.filter(u=>specs.some(s=>s[0]===u.email)).map(u=>u.id);
-const old=(await call('artworks?manage=true&size=100','GET',undefined,admin)).data.items.filter(a=>!keep.includes(a.artist_id));
+const old=(await listAll('artworks?manage=true',admin)).filter(a=>!keep.includes(a.artist_id));
 for(const a of old){if(!['sold','reserved'].includes(a.status))await call('artworks/'+a.id,'DELETE',undefined,admin);}
-for(const u of users.filter(u=>u.role==='staff'&&!keep.includes(u.id)))await call('users/'+u.id,'PATCH',{name:u.name,role:'staff',active:false},admin);
-const artists=(await call('artists')).data.items;const gallery=(await call('artworks?size=100')).data;
-if(artists.length!==2||gallery.total!==2)throw Error('Expected exactly 2 artists and 2 published artworks: '+JSON.stringify({artists:artists.length,artworks:gallery.total}));
-for(const art of gallery.items){const image=await fetch(host+art.image);if(!image.ok)throw Error('Artwork image unavailable');}
-console.log('Verified 2 artists, 2 approved works and public images:',host);
+for(const u of users.filter(u=>u.role==='staff'&&!keep.includes(u.id)&&u.active))await call('users/'+u.id,'PATCH',{name:u.name,role:'staff',active:false},admin);
+// The two supplied portraits are used only as artist avatars, not as the store poster.
+await call('site_settings','PATCH',{image:'/art/art-1.jpg'},admin);
+const artists=(await call('artists')).data.items;const gallery=await listAll('artworks');
+if(artists.length!==2||gallery.length!==catalog.length)throw Error('Unexpected catalogue counts: '+JSON.stringify({artists:artists.length,artworks:gallery.length}));
+for(const userId of keep)if(gallery.filter(a=>a.artist_id===userId).length!==catalog.filter(piece=>piece.color===(userId===keep[0]?'blue':'green')).length)throw Error('Artwork ownership is incorrect');
+for(const art of gallery){if(art.status!=='approved')throw Error('Artwork is not approved');const image=await fetch(host+art.image);if(!image.ok||(await image.arrayBuffer()).byteLength===0)throw Error('Artwork image unavailable');}
+console.log('Verified 2 artists, '+catalog.length+' approved internet memes, correct ownership and unchanged profile images:',host);

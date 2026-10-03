@@ -89,13 +89,13 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       await db.transaction(async tx=>{if(method==='POST') await tx.query('INSERT INTO art.categories(id,name) VALUES($1,$2)',[key,v.name]);else await tx.query('UPDATE art.categories SET name=$1 WHERE id=$2',[v.name,key]);await audit(tx,user.id,method==='POST'?'create':'update','category',key,{name:v.name});});return json({ok:true});
     }
     if (resource==='artists' && method==='GET') {
-      if(id) {const [artist]=await db.query(`SELECT id,name,bio,university FROM art.users WHERE id=$1 AND role IN ('staff','admin') AND active=true`,[id]);if(!artist)throw new AppError(404,'ไม่พบศิลปิน');return json({artist});}
-      return json({items:await db.query(`SELECT u.id,u.name,u.bio,u.university,COUNT(a.id)::int AS count,MIN(a.image) AS image FROM art.users u LEFT JOIN art.artworks a ON a.artist_id=u.id AND a.status IN ('approved','sold','reserved') AND a.deleted=false WHERE u.active=true AND (u.role='staff' OR (u.role='admin' AND a.id IS NOT NULL)) GROUP BY u.id ORDER BY u.name`)});
+      if(id) {const [artist]=await db.query(`SELECT id,name,bio,university,avatar,cover,accent FROM art.users WHERE id=$1 AND role IN ('staff','admin') AND active=true`,[id]);if(!artist)throw new AppError(404,'ไม่พบศิลปิน');return json({artist});}
+      return json({items:await db.query(`SELECT u.id,u.name,u.bio,u.university,u.avatar,u.cover,u.accent,COUNT(a.id)::int AS count,MIN(a.image) AS image FROM art.users u LEFT JOIN art.artworks a ON a.artist_id=u.id AND a.status IN ('approved','sold','reserved') AND a.deleted=false WHERE u.active=true AND (u.role='staff' OR (u.role='admin' AND a.id IS NOT NULL)) GROUP BY u.id ORDER BY u.name`)});
     }
     if (resource==='artworks') {
       if(method==='GET') {
         const user=id||url.searchParams.get('manage')==='true'?await sessionUser():null;
-        if(id) {const [art]=await db.query(`SELECT a.*,u.name AS artist_name,u.bio AS artist_bio,u.university,c.name AS category_name FROM art.artworks a JOIN art.users u ON u.id=a.artist_id JOIN art.categories c ON c.id=a.category_id WHERE a.id=$1 AND a.deleted=false`,[id]);if(!art || (!['approved','reserved','sold'].includes(art.status) && user?.role!=='admin' && user?.id!==art.artist_id))throw new AppError(404,'ไม่พบผลงาน');return json({artwork:art});}
+        if(id) {const [art]=await db.query(`SELECT a.*,u.name AS artist_name,u.bio AS artist_bio,u.avatar AS artist_avatar,u.university,c.name AS category_name FROM art.artworks a JOIN art.users u ON u.id=a.artist_id JOIN art.categories c ON c.id=a.category_id WHERE a.id=$1 AND a.deleted=false`,[id]);if(!art || (!['approved','reserved','sold'].includes(art.status) && user?.role!=='admin' && user?.id!==art.artist_id))throw new AppError(404,'ไม่พบผลงาน');return json({artwork:art});}
         const {page,size}=pageArgs(url); const values:any[]=[]; const conditions=['a.deleted=false'];
         const add=(sql:string,value:any)=>{values.push(value);conditions.push(sql.replace('?',`$${values.length}`));};
         if(url.searchParams.get('manage')==='true') {if(!user || !['staff','admin'].includes(user.role))throw new AppError(403,'ไม่มีสิทธิ์เข้าถึง');if(user.role==='staff')add('a.artist_id=?',user.id);}

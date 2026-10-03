@@ -2,11 +2,7 @@ import type { DB } from './db';
 import { hashPassword } from './password';
 import { randomBytes } from 'node:crypto';
 
-const samplePieces = [
- ['เบนจามินยาฮู — พลังสีฟ้า','painting',3000,'ภาพดิจิทัล',60,90,'ภาพมีมสีฟ้าที่ผู้ใช้แนบสำหรับโปรเจกต์สาธิต'],
- ['เบนจามินเทนนอสัน — พลังสีเขียว','painting',3000,'ภาพดิจิทัล',60,90,'ภาพมีมสีเขียวที่ผู้ใช้แนบสำหรับโปรเจกต์สาธิต']
-] as const;
-const sampleCredits = [['ภาพแนบจากเจ้าของโปรเจกต์',''],['ภาพแนบจากเจ้าของโปรเจกต์','']] as const;
+import samplePieces from '../public/art/attributions.json';
 // Seed metadata must never overwrite uploaded or edited records on startup.
 export async function syncSampleArt(_db: DB) {}
 export async function seedLocal(db: DB, remote = false) {
@@ -22,8 +18,10 @@ export async function seedLocal(db: DB, remote = false) {
     for (const [id,name] of [['painting','งานศิลปะ']])
       await tx.query('INSERT INTO art.categories(id,name) VALUES($1,$2)',[id,name]);
     for (let i=0;i<samplePieces.length;i++) {
-      const [title,category,price,technique,width,height,description] = samplePieces[i];
-      const [credit,sourceUrl] = sampleCredits[i];
+      const piece = samplePieces[i];
+      const {title,source_url:sourceUrl,artist:credit} = piece;
+      const category='painting',price=3000,technique='ภาพมีมจาก GIF',width=60,height=60;
+      const description='ภาพนิ่งจาก GIF บน Tenor สำหรับโปรเจกต์สาธิต — ต้นทาง: '+sourceUrl;
       await tx.query(`INSERT INTO art.artworks(id,artist_id,category_id,title,description,technique,width,height,price,image,status,credit,source_url) VALUES($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13)`,
       [`sample-${i+1}`,i%2?'demo-artist2':'demo-artist',category,title,description,technique,width,height,Number(price)*100,`/art/art-${i+1}.jpg`,'approved',credit,sourceUrl] );
     }
