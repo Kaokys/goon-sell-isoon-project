@@ -6,8 +6,28 @@ export const money=(n:number|string)=>new Intl.NumberFormat('th-TH',{style:'curr
 export const date=(d:string)=>new Date(d).toLocaleDateString('th-TH',{day:'numeric',month:'short',year:'numeric'});
 export const statusNames:Item={approved:'พร้อมจำหน่าย',pending:'รออนุมัติ',rejected:'ต้องแก้ไข',reserved:'ถูกจองแล้ว',sold:'ขายแล้ว',pending_payment:'รอชำระเงิน',paid:'ชำระแล้ว',shipped:'จัดส่งแล้ว',completed:'สำเร็จ',cancelled:'ยกเลิก'};
 export async function api(path:string,options?:RequestInit){const res=await fetch(`/api/${path}`,{...options,headers:options?.body instanceof FormData?options.headers:{'Content-Type':'application/json',...options?.headers}});const raw=await res.text();let data:any={};try{data=raw?JSON.parse(raw):{};}catch{data={};}if(!res.ok){const message=data.error||(res.status===413?'ไฟล์หรือข้อมูลมีขนาดใหญ่เกินไป กรุณาเลือกไฟล์ที่เล็กลง':res.status>=500?'ระบบไม่พร้อมใช้งานชั่วคราว กรุณาลองอีกครั้ง':'ดำเนินการไม่สำเร็จ กรุณาตรวจสอบข้อมูล');const error=new Error(message) as Error&{status?:number};error.status=res.status;throw error;}if(raw&&!Object.keys(data).length)throw new Error('ระบบตอบกลับไม่ถูกต้อง กรุณาลองอีกครั้ง');return data;}
-export const send=(path:string,data:any,method='POST')=>api(path,{method,body:JSON.stringify(data)});
-export function useData(path:string){const [data,setData]=useState<any>(null);const [error,setError]=useState('');const [version,setVersion]=useState(0);useEffect(()=>{let live=true;let timer:ReturnType<typeof setTimeout>;setError('');setData(null);const load=(attempt=0)=>api(path).then(d=>{if(live)setData(d);}).catch((e:Error&{status?:number})=>{if(!live)return;if(attempt<2&&(!e.status||e.status>=500)){timer=setTimeout(()=>load(attempt+1),500*(attempt+1));return;}setError(e.message);});load();return()=>{live=false;clearTimeout(timer);};},[path,version]);return {data,error,reload:()=>setVersion(v=>v+1)};}
+export const send=async(path:string,data:any,method='POST')=>{const result=await api(path,{method,body:JSON.stringify(data)});clearPublicCache();return result;};
+// Cache public lists only. Account, orders and management data always load afresh.
+const publicCache=new Map<string,{data:any,time:number}>();
+const publicRequests=new Map<string,Promise<any>>();
+let cacheGeneration=0;
+const isPublicList=(path:string)=>['categories','artists','site_settings'].includes(path)||path.startsWith('artworks?')&&!new URLSearchParams(path.split('?')[1]).has('manage');
+const cachedData=(path:string)=>{const entry=publicCache.get(path);return entry&&Date.now()-entry.time<30000?entry.data:null;};
+function clearPublicCache(){cacheGeneration++;publicCache.clear();publicRequests.clear();}
+function loadData(path:string){
+ if(!isPublicList(path))return api(path);
+ const pending=publicRequests.get(path);if(pending)return pending;
+ const generation=cacheGeneration;
+ const request=api(path).then(data=>{if(generation===cacheGeneration){publicCache.set(path,{data,time:Date.now()});if(publicCache.size>50)publicCache.delete(publicCache.keys().next().value!);}return data;}).finally(()=>{if(publicRequests.get(path)===request)publicRequests.delete(path);});
+ publicRequests.set(path,request);return request;
+}
+export function useData(path:string){
+ const [state,setState]=useState<{path:string,data:any}>(()=>({path,data:isPublicList(path)?cachedData(path):null}));const [error,setError]=useState('');const [version,setVersion]=useState(0);
+ const data=state.path===path?state.data:isPublicList(path)?cachedData(path):null;
+ useEffect(()=>{let live=true;let timer:ReturnType<typeof setTimeout>;setError('');setState(current=>({path,data:current.path===path?current.data:isPublicList(path)?cachedData(path):null}));
+ const load=(attempt=0)=>loadData(path).then(value=>{if(live)setState({path,data:value});}).catch((e:Error&{status?:number})=>{if(!live)return;if(attempt<2&&(!e.status||e.status>=500)){timer=setTimeout(()=>load(attempt+1),500*(attempt+1));return;}setError(e.message);});load();return()=>{live=false;clearTimeout(timer);};},[path,version]);
+ return {data,error,reload:()=>setVersion(v=>v+1)};
+}
 export const AppContext=createContext<any>(null);
 export function AppProvider({children}:{children:ReactNode}){
  const [session,setSession]=useState<any>(null);const [sessionError,setSessionError]=useState('');const [cart,setCart]=useState<string[]>([]);const [ready,setReady]=useState(false);const [toast,setToast]=useState('');const sessionRequest=useRef(0);

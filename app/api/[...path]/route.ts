@@ -86,7 +86,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     }
     if (resource==='artworks') {
       if(method==='GET') {
-        const user=await sessionUser();
+        const user=id||url.searchParams.get('manage')==='true'?await sessionUser():null;
         if(id) {const [art]=await db.query(`SELECT a.*,u.name AS artist_name,u.bio AS artist_bio,u.university,c.name AS category_name FROM art.artworks a JOIN art.users u ON u.id=a.artist_id JOIN art.categories c ON c.id=a.category_id WHERE a.id=$1 AND a.deleted=false`,[id]);if(!art || (!['approved','reserved','sold'].includes(art.status) && user?.role!=='admin' && user?.id!==art.artist_id))throw new AppError(404,'ไม่พบผลงาน');return json({artwork:art});}
         const {page,size}=pageArgs(url); const values:any[]=[]; const conditions=['a.deleted=false'];
         const add=(sql:string,value:any)=>{values.push(value);conditions.push(sql.replace('?',`$${values.length}`));};
@@ -133,9 +133,10 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
       const key=randomUUID();await db.query('INSERT INTO art.media(id,owner_id,kind,data) VALUES($1,$2,$3,$4)',[key,user.id,kind,data]);return json({id:key,url:`/api/media/${key}`},201);
     }
     if(resource==='media' && method==='GET') {
-      const user=await sessionUser();
       const [file]=await db.query(`SELECT m.*,EXISTS(SELECT 1 FROM art.artworks a WHERE a.image='/api/media/' || m.id AND a.deleted=false AND a.status IN ('approved','reserved','sold')) AS published FROM art.media m WHERE m.id=$1`,[id]);
-      if(!file || !(user?.id===file.owner_id || user?.role==='admin' || (file.kind==='banner' && (await db.query('SELECT id FROM art.site_settings WHERE image=$1',['/api/media/'+id])).length>0) || (file.kind==='art' && file.published) || (file.kind==='profile' && (await db.query("SELECT id FROM art.users WHERE active=true AND (avatar=$1 OR cover=$1)",['/api/media/'+id])).length>0)))throw new AppError(404,'ไม่พบไฟล์');
+      if(!file)throw new AppError(404,'ไม่พบไฟล์');
+      const publicImage=(file.kind==='art'&&file.published)||(file.kind==='banner'&&(await db.query('SELECT id FROM art.site_settings WHERE image=$1',['/api/media/'+id])).length>0)||(file.kind==='profile'&&(await db.query('SELECT id FROM art.users WHERE active=true AND (avatar=$1 OR cover=$1)',['/api/media/'+id])).length>0);
+      if(!publicImage){const user=await sessionUser();if(user?.id!==file.owner_id&&user?.role!=='admin')throw new AppError(404,'ไม่พบไฟล์');}
       return new Response(new Uint8Array(file.data),{headers:{'Content-Type':'image/jpeg','Cache-Control':'private, no-store','X-Content-Type-Options':'nosniff'}});
     }
     if(resource==='orders') {

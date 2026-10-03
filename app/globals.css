@@ -50,3 +50,11 @@
 .table-wrap table{min-width:560px}.table-wrap .button{white-space:nowrap;overflow-wrap:normal}.table-wrap .table-small{white-space:nowrap}.table-wrap:focus-visible{outline:3px solid #95a6ff;outline-offset:3px}
 @media(max-width:600px){.table-wrap::before{content:'เลื่อนซ้าย–ขวาเพื่อดูข้อมูลทั้งหมด';display:block;padding:10px 12px;font-size:11px;color:#5e6570;background:#f8f9fb}.table-wrap td:first-child{min-width:180px}}
 .poster-preview.gallery-intro{margin:0;width:100%;min-width:0;border-radius:12px;height:clamp(440px,45vw,600px)}.poster-preview .hero-copy{left:5%;right:5%;max-width:90%}.poster-preview.gallery-intro h1{font-size:clamp(46px,6vw,86px)}
+
+@media(prefers-reduced-motion:no-preference){html{scroll-behavior:smooth}.button,.icon-button,.main-nav a,.category-tabs button,.art-card{transition:background-color .15s ease,color .15s ease,box-shadow .15s ease,transform .15s ease}.button:active,.icon-button:active{transform:scale(.97)}.art-card:hover{transform:translateY(-3px)}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}*,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important}}
+
+.header-portal{display:flex;align-items:center;gap:6px;font-size:12px;white-space:nowrap}
+@media(min-width:1201px){.header{display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);gap:20px}.header>.brand{justify-self:start}.header>.main-nav{justify-self:center;gap:28px}.header>.header-actions{justify-self:end}.main-nav>a{min-width:64px;justify-content:center;text-align:center}}
+@media(min-width:1201px) and (max-width:1500px){.header-search{width:40px;padding:0;justify-content:center}.header-search span,.header-portal span{display:none}.header-actions{gap:12px}}
+@media(max-width:1200px){.header-portal{display:none}}
