@@ -9,3 +9,5 @@ Public artwork list and published image requests avoid unnecessary session-store
 Production build and 20 integration groups passed, including private media and role checks.
 
 Browser checks passed for identical menu positions across 4 storefront pages, 4 roles and desktop widths 1440/1280. Mobile role portal links remain available. Cached art cards remain visible while the API response is held pending.
+
+The utility bar and store header now stick to the viewport during scrolling and route changes. Global smooth scrolling is disabled to avoid animated route scroll restoration. Anchor targets account for the header height. Production browser checks passed at widths 1440, 900, 768 and 390 without page overflow.
