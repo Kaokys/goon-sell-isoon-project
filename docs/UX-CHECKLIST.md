@@ -49,7 +49,7 @@ A final local artist-detail trace after reserving page height reported CLS 0.001
 
 A post-push Vercel gallery smoke check showed the new h1 gallery and seven published artworks with the existing admin session restored; the new WebP asset returned HTTP 200. Opening that deployment initially exceeded the browser navigation timeout, so serverless session lookup was moved after document rendering. Guest session, payment options and geography now avoid unnecessary database startup.
 
-No promise of zero latency or zero layout shift is made. Vercel cold starts, Blob connectivity, deployment status and field performance need verification against the live deployment; local test results do not cover them. Google login still depends on the existing Google OAuth environment configuration.
+No promise of zero latency or zero layout shift is made. Final Vercel deployment was verified with an HTTP 200 document containing the new serverless account placeholder, then a browser reload that restored the existing admin account and all seven gallery cards. All seven rendered images loaded their hashed WebP variants; no console errors/warnings were captured. Admin/payment writes were exercised only against the isolated local test database. Cold-start latency and field performance still vary. Google login still depends on the existing Google OAuth environment configuration.
 
 ## Screenshots
 
@@ -60,3 +60,7 @@ Desktop gallery after search/sort:
 Mobile gallery after shared UI and asset changes:
 
 ![Mobile gallery](ux-final/08-gallery-mobile-after.jpg)
+
+Final Vercel gallery smoke-test screenshot:
+
+![Vercel gallery](ux-final/12-vercel-gallery-after.jpg)
