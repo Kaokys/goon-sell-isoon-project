@@ -1,4 +1,5 @@
 import { z } from 'zod';
+z.config(z.locales.th());
 const text = (min: number,max: number) => z.string().trim().min(min,`กรุณากรอกอย่างน้อย ${min} ตัวอักษร`).max(max,`ต้องไม่เกิน ${max} ตัวอักษร`);
 export const loginSchema = z.object({email:z.email('อีเมลไม่ถูกต้อง').trim().toLowerCase(),password:z.string().min(1).max(128)});
 export const registerSchema = loginSchema.extend({name:text(2,100),password:z.string().min(10,'รหัสผ่านต้องมีอย่างน้อย 10 ตัวอักษร').max(128),artist_requested:z.boolean().default(false)});

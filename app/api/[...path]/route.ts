@@ -12,6 +12,8 @@ import { hashPassword, verifyPassword } from '@/lib/password';
 import { loginSchema, registerSchema, artworkSchema, orderSchema, profileSchema, userSchema } from '@/lib/validation';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
+const fieldLabels:Record<string,string>={email:'อีเมล',password:'รหัสผ่าน',name:'ชื่อ',recipient:'ชื่อผู้รับ',phone:'เบอร์โทรศัพท์',line1:'บ้านเลขที่ / อาคาร / ถนน',province:'จังหวัด',district:'อำเภอ / เขต',subdistrict:'ตำบล / แขวง',postcode:'รหัสไปรษณีย์',title:'ชื่อผลงาน',description:'รายละเอียด',category_id:'หมวดหมู่',technique:'เทคนิค',width:'ความกว้าง',height:'ความสูง',price:'ราคา',image:'รูปภาพ',bio:'แนะนำตัว',university:'คณะ / มหาวิทยาลัย',role:'สิทธิ์ผู้ใช้',accent:'สีโปรไฟล์',payment_method:'วิธีชำระเงิน',address_id:'ที่อยู่จัดส่ง',buyer_note:'ข้อความถึงร้าน'};
+const metricLimits=new Map<string,{count:number,until:number}>();
 const json = (data: any,status=200) => NextResponse.json(data,{status,headers:{'Cache-Control':'no-store'}});
 async function body(req: Request) { if (Number(req.headers.get('content-length')||0)>40000) throw new AppError(413,'ข้อมูลมีขนาดใหญ่เกินไป'); const raw=await req.text();if(raw.length>40000)throw new AppError(413,'ข้อมูลมีขนาดใหญ่เกินไป');try{return JSON.parse(raw);}catch{throw new AppError(400,'ข้อมูล JSON ไม่ถูกต้อง');} }
 const pageArgs = (url: URL) => ({page: Math.max(1,Math.min(10000,Math.floor(Number(url.searchParams.get('page'))||1))),size:12});
@@ -28,8 +30,14 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     const method = req.method;
     const url = new URL(req.url);
     if (method!=='GET') checkOrigin(req);
-    const methods:Record<string,string[]>= {site_settings:['GET','PATCH'],addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['GET','PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
+    const methods:Record<string,string[]>= {ux_metrics:['POST'],site_settings:['GET','PATCH'],addresses:['GET','POST','PATCH','DELETE'],geography:['GET'],payment_options:['GET'],session:['GET'],auth:['POST'],profile:['GET','PATCH'],categories:['GET','POST','PATCH','DELETE'],artists:['GET'],artworks:['GET','POST','PATCH','DELETE'],upload:['POST'],media:['GET'],orders:['GET','POST','PATCH'],users:['GET','PATCH'],dashboard:['GET'],logs:['GET']};
     if(!methods[resource]?.includes(method))throw new AppError(405,'ไม่รองรับวิธีเรียกใช้งานนี้');
+    if(resource==='ux_metrics'){
+      const key=digest(req.headers.get('x-forwarded-for')?.split(',')[0]||'local');const now=Date.now();const previous=metricLimits.get(key);if(previous&&previous.until>now&&previous.count>=60)throw new AppError(429,'ส่งข้อมูลบ่อยเกินไป');if(!previous&&metricLimits.size>=2000)metricLimits.delete(metricLimits.keys().next().value!);metricLimits.set(key,{count:previous&&previous.until>now?previous.count+1:1,until:previous&&previous.until>now?previous.until:now+60000});if(metricLimits.size>2000)for(const [id,value] of metricLimits)if(value.until<now)metricLimits.delete(id);
+      if(Number(req.headers.get('content-length')||0)>1000)throw new AppError(413,'ข้อมูลมีขนาดใหญ่เกินไป');
+      const metric=z.object({type:z.enum(['lcp','cls','navigation','runtime_error','slow_api','api_error']),value:z.number().finite().min(0).max(3600000),route:z.string().max(120).regex(/^\/[a-z/:_-]*$/),code:z.string().max(60).regex(/^[a-zA-Z0-9_:-]*$/)}).parse(await body(req));
+      console.info('[sillapa-ux]',JSON.stringify(metric));return json({ok:true});
+    }
     const db = await getDB();
     if(resource==='site_settings') {
       if(method==='GET'){const [setting]=await db.query("SELECT image FROM art.site_settings WHERE id='homepage'");return json({image:setting?.image||'/art/art-1.jpg'});}
@@ -204,7 +212,7 @@ async function handle(req: Request, context: {params:Promise<{path:string[]}>}) 
     throw new AppError(404,'ไม่พบรายการที่ต้องการ');
   } catch(error:any) {
     if(error instanceof AppError)return json({error:error.message},error.status);
-    if(error instanceof ZodError)return json({error:error.issues.map(i=>`${i.path.join('.')}: ${i.message}`).join(' · ')},400);
+    if(error instanceof ZodError)return json({error:error.issues.map(i=>`${fieldLabels[String(i.path[0])]||'ข้อมูล'}: ${i.message.replace(/\bstring\b/g,'ข้อความ').replace(/\bnumber\b/g,'ตัวเลข')}`).join(' · ')},400);
     if(error.code==='23505')return json({error:'ข้อมูลนี้มีอยู่แล้ว กรุณาตรวจสอบอีเมลหรือชื่อ'},409);
     if(error.code==='23503')return json({error:'รายการนี้ยังถูกใช้งานอยู่ หรือข้อมูลอ้างอิงไม่ถูกต้อง'},409);
     console.error('API error:',error.message);return json({error:'ระบบยังไม่พร้อม กรุณาลองใหม่ หรือตรวจสอบการตั้งค่าฐานข้อมูล'},500);
