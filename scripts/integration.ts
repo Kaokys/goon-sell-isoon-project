@@ -26,6 +26,9 @@ async function main(){
  for(let i=0;i<90;i++){try{const r=await fetch(`${origin}/api/session`);if(r.ok)break;}catch{}if(i===89)throw new Error(`Server failed to start: ${serverLog}`);await new Promise(r=>setTimeout(r,1000));}
  const guest=new Client(),admin=new Client(),artist=new Client(),customer=new Client(),other=new Client();
  await admin.login('admin@demo.local');await artist.login('artist@demo.local');await customer.login('customer@demo.local');
+ const remembered=new Client();remembered.cookie=customer.cookie;assert.equal((await remembered.request('session')).user.email,'customer@demo.local');
+ const rememberedLogin=await fetch(origin+'/api/auth/login',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({email:'customer@demo.local',password:'ArtDemo2026!'})});assert.equal(rememberedLogin.status,200);const persistentCookie=rememberedLogin.headers.get('set-cookie')||'';assert.match(persistentCookie,/Max-Age=2592000/i);assert.match(persistentCookie,/HttpOnly/i);assert.match(persistentCookie,/SameSite=lax/i);
+ pass('Persistent 30-day session cookie restores the same account in a new client');
  await other.request('auth/register','POST',{name:'Integration Customer',email:`test-${stamp}@example.test`,password:'IntegrationPass!2026',role:'admin',artist_requested:true},201);
  assert.equal((await other.request('session')).user.role,'customer');pass('Registration ignores injected role; new users are customers');
  await guest.request('users','GET',undefined,401);await customer.request('users','GET',undefined,403);await customer.request('dashboard','GET',undefined,403);await customer.request('logs','GET',undefined,403);

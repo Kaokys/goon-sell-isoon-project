@@ -3,6 +3,7 @@ import { cookies } from 'next/headers';
 import { getDB, type DB } from './db';
 export class AppError extends Error { constructor(public status: number, message: string) { super(message); } }
 export const publicUser = (u: any) => ({id:u.id,email:u.email,name:u.name,role:u.role,bio:u.bio,university:u.university,artist_requested:u.artist_requested,avatar:u.avatar,cover:u.cover,accent:u.accent});
+export const SESSION_MAX_AGE = 30 * 24 * 60 * 60;
 export const digest = (token: string) => createHash('sha256').update(token).digest('hex');
 export async function sessionUser() {
   const token = (await cookies()).get('sillapa_session')?.value;
@@ -30,11 +31,11 @@ export async function createSession(db: DB, userId: string) {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const { put } = await import('@vercel/blob');
     const [user] = await db.query('SELECT role FROM art.users WHERE id=$1',[userId]);
-    await put(`sillapa/sessions/${digest(token)}.json`,JSON.stringify({userId,role:user.role,expiresAt:Date.now()+604800000}),{access:'private',contentType:'application/json',addRandomSuffix:false,allowOverwrite:true});
+    await put(`sillapa/sessions/${digest(token)}.json`,JSON.stringify({userId,role:user.role,expiresAt:Date.now()+SESSION_MAX_AGE*1000}),{access:'private',contentType:'application/json',addRandomSuffix:false,allowOverwrite:true});
   }
   await db.query(`DELETE FROM art.sessions WHERE expires_at<now()`);
-  await db.query(`INSERT INTO art.sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+interval '7 days')`,[digest(token),userId]);
-  (await cookies()).set('sillapa_session',token,{httpOnly:true,secure:!!process.env.VERCEL || process.env.APP_URL?.startsWith('https://'),sameSite:'lax',path:'/',maxAge:604800});
+  await db.query(`INSERT INTO art.sessions(token_hash,user_id,expires_at) VALUES($1,$2,now()+($3 * interval '1 second'))`,[digest(token),userId,SESSION_MAX_AGE]);
+  (await cookies()).set('sillapa_session',token,{httpOnly:true,secure:!!process.env.VERCEL || process.env.APP_URL?.startsWith('https://'),sameSite:'lax',path:'/',maxAge:SESSION_MAX_AGE});
 }
 export async function revokeSession(token: string) {
   if (process.env.BLOB_READ_WRITE_TOKEN) {
