@@ -33,7 +33,7 @@ async function main(){
  const guest=new Client(),admin=new Client(),artist=new Client(),customer=new Client(),other=new Client();
  const notFound=await fetch(origin+'/missing-ux-page');assert.equal(notFound.status,404);assert.ok((await notFound.text()).includes('ไม่พบหน้านี้'));
  await guest.request('ux_metrics','POST',{type:'cls',value:0.02,route:'/gallery',code:''});await guest.request('ux_metrics','POST',{type:'runtime_error',value:0,route:'/orders/:id',code:'TypeError'});await guest.request('ux_metrics','POST',{type:'runtime_error',value:0,route:'/orders?secret=private',code:''},400);await guest.request('ux_metrics','POST',{type:'cls',value:0,route:'/gallery',code:''},403,'https://evil.example');pass('Helpful HTTP 404 and bounded, validated same-origin performance/error reporting');
- await admin.login('admin@demo.local');await artist.login('artist@demo.local');await customer.login('customer@demo.local');
+ await admin.login('admin@demo.local');await artist.login('benjamin.blue@demo.local');await customer.login('customer@demo.local');
  const remembered=new Client();remembered.cookie=customer.cookie;assert.equal((await remembered.request('session')).user.email,'customer@demo.local');
  const rememberedLogin=await fetch(origin+'/api/auth/login',{method:'POST',headers:{origin,'content-type':'application/json'},body:JSON.stringify({email:'customer@demo.local',password:'ArtDemo2026!'})});assert.equal(rememberedLogin.status,200);const persistentCookie=rememberedLogin.headers.get('set-cookie')||'';assert.match(persistentCookie,/Max-Age=2592000/i);assert.match(persistentCookie,/HttpOnly/i);assert.match(persistentCookie,/SameSite=lax/i);
  pass('Persistent 30-day session cookie restores the same account in a new client');
@@ -44,13 +44,13 @@ async function main(){
  await admin.request('categories','POST',{name:'Blocked CSRF'},403,'https://evil.example');pass('Cross-origin writes rejected');
  await guest.request('auth/login','POST',{email:'admin@demo.local',password:'wrong'},401);
  await guest.request('auth/register','POST',{name:'A',email:'invalid',password:'short'},400);pass('Invalid login and registration validation');
- const publicList=await guest.request('artworks');assert.equal(publicList.total,7);
+ const publicList=await guest.request('artworks');assert.equal(publicList.total,2);
  assert.deepEqual((await guest.request('categories')).items.map((c:any)=>[c.id,c.name]),[['painting','งานศิลปะ']]);
- for(const old of ['illustration','landscape','portrait','still-life'])assert.equal((await guest.request('artworks?category='+old)).total,7);
+ for(const old of ['illustration','landscape','portrait','still-life'])assert.equal((await guest.request('artworks?category='+old)).total,2);
  pass('One default art category and backward-compatible old category links');
  await guest.request('artworks/sample-8','GET',undefined,404);
  assert.equal((await artist.request('artworks?manage=true')).items.every((a:any)=>a.artist_id==='demo-artist'),true);
- await artist.request('artworks/sample-2','DELETE',undefined,403);pass('Pending art is private; artists cannot edit another artist’s work');
+ await artist.request('artworks/sample-2','DELETE',undefined,403);pass('Missing art returns 404; artists cannot edit another artist’s work');
  const form=new FormData();form.set('file',new Blob([await readFile('public/art/art-1.jpg')],{type:'image/jpeg'}),'test.jpg');form.set('kind','art');
  const uploaded=await artist.request('upload','POST',form,201);
  const hiddenMedia=await fetch(`${origin}${uploaded.url}`);assert.equal(hiddenMedia.status,404);
@@ -87,7 +87,7 @@ async function main(){
  assert.equal((await fetch(`${origin}${uploaded.url}`)).status,200);pass('Artwork/category CRUD, validation, review and draft-to-public transitions');
  const filtered=await guest.request(`artworks?q=Integration&category=${category.id}&sort=price_asc&max=1300`);assert.equal(filtered.total,1);assert.equal(filtered.items[0].price,123456);
  const sorted=await guest.request('artworks?sort=price_asc');for(let i=1;i<sorted.items.length;i++)assert.ok(sorted.items[i].price>=sorted.items[i-1].price);
- const extraIds=[];for(let i=0;i<7;i++){const a=await artist.request('artworks','POST',{...art,title:`Pagination artwork ${i}`},201);extraIds.push(a.id);await admin.request(`artworks/${a.id}/review`,'PATCH',{status:'approved'});}
+ const extraIds=[];for(let i=0;i<13;i++){const a=await artist.request('artworks','POST',{...art,title:`Pagination artwork ${i}`},201);extraIds.push(a.id);await admin.request(`artworks/${a.id}/review`,'PATCH',{status:'approved'});}
  const p1=await guest.request('artworks?page=1'),p2=await guest.request('artworks?page=2');assert.equal(p1.items.length,12);assert.ok(p2.items.length>0);assert.equal(p1.items.some((a:any)=>p2.items.some((b:any)=>b.id===a.id)),false);
  pass('Search, category/price filters, price sort and non-overlapping pagination');
  const location=await guest.request('geography?province='+encodeURIComponent('ขอนแก่น')+'&district='+encodeURIComponent('เมืองขอนแก่น')+'&subdistrict='+encodeURIComponent('ในเมือง'));
@@ -149,3 +149,4 @@ async function main(){
  console.log(`\n${results.length} test groups passed.`);
 }
 main().catch(e=>{console.error(e);console.error(serverLog.slice(-5000));process.exitCode=1;}).finally(()=>{server.kill();shellServer.kill();});
+

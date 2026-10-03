@@ -1,66 +1,18 @@
 [
   {
     "id": 1,
-    "title": "เมื่อมีลูกค้าสั่งมีม",
-    "artist": "Jennifer Williams",
+    "title": "เบนจามินยาฮู",
+    "artist": "ภาพแนบจากเจ้าของโปรเจกต์",
     "filename": "art-1.jpg",
-    "license": "CC BY-SA 2.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Cat_Meme.jpg"
+    "license": "ไม่ได้ระบุสัญญาอนุญาต",
+    "source_url": ""
   },
   {
     "id": 2,
-    "title": "สนุกครั้งเดียว เข็ดเลย",
-    "artist": "Di (they-them)",
+    "title": "เบนจามินเทนนอสัน",
+    "artist": "ภาพแนบจากเจ้าของโปรเจกต์",
     "filename": "art-2.jpg",
-    "license": "CC BY-SA 4.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Grumpy_Cat_meme_example.jpg"
-  },
-  {
-    "id": 3,
-    "title": "วันจันทร์มาอีกแล้ว",
-    "artist": "PantheraLeo1359531",
-    "filename": "art-3.jpg",
-    "license": "CC BY 4.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:MONDAY-Meme_Dsc5436.png"
-  },
-  {
-    "id": 4,
-    "title": "แมวทำงานแทนฉันที",
-    "artist": "slava / PlanespotterA320",
-    "filename": "art-4.jpg",
-    "license": "CC BY 2.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Expanding_ur_stubs.jpg"
-  },
-  {
-    "id": 5,
-    "title": "โหมดอสูรแมว",
-    "artist": "Sev6nWiki",
-    "filename": "art-5.jpg",
-    "license": "CC BY 4.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Beast_Cat_Original_(Meme).jpg"
-  },
-  {
-    "id": 6,
-    "title": "ขอแอบดูหน่อย",
-    "artist": "mikapon",
-    "filename": "art-6.jpg",
-    "license": "CC BY-SA 2.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Funny_dog.jpg"
-  },
-  {
-    "id": 7,
-    "title": "ขอคำเดียวได้ไหม",
-    "artist": "Vkoid",
-    "filename": "art-7.jpg",
-    "license": "CC BY-SA 4.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Dog_wants_corndog.jpg"
-  },
-  {
-    "id": 8,
-    "title": "ไม่พอใจ แต่ยังน่ารัก",
-    "artist": "TyedyeBrody",
-    "filename": "art-8.jpg",
-    "license": "CC0 1.0",
-    "source_url": "https://commons.wikimedia.org/wiki/File:Gracie_Seyranian_the_chunky_cat,_she%E2%80%99s_a_funny_cat_but_she%E2%80%99s_angry.jpg"
+    "license": "ไม่ได้ระบุสัญญาอนุญาต",
+    "source_url": ""
   }
 ]
