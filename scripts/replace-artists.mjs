@@ -32,4 +32,3 @@ const artists=(await call('artists')).data.items;const gallery=(await call('artw
 if(artists.length!==2||gallery.total!==2)throw Error('Expected exactly 2 artists and 2 published artworks: '+JSON.stringify({artists:artists.length,artworks:gallery.total}));
 for(const art of gallery.items){const image=await fetch(host+art.image);if(!image.ok)throw Error('Artwork image unavailable');}
 console.log('Verified 2 artists, 2 approved works and public images:',host);
-

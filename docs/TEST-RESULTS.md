@@ -1,6 +1,6 @@
 # Integration test results
 
-Executed: 2026-10-03T08:47:04.771Z
+Executed: 2026-10-03T09:09:30.161Z
 
 Production Next.js server with isolated local test data. No live payment sent.
 
@@ -12,7 +12,7 @@ Production Next.js server with isolated local test data. No live payment sent.
 - PASS: Cross-origin writes rejected
 - PASS: Invalid login and registration validation
 - PASS: One default art category and backward-compatible old category links
-- PASS: Pending art is private; artists cannot edit another artist’s work
+- PASS: Missing art returns 404; artists cannot edit another artist’s work
 - PASS: Uploads validate actual image bytes, size/type and uploader role; drafts stay private
 - PASS: Homepage poster: admin upload/save/reset, public published image, role protection and audit log
 - PASS: Artwork/category CRUD, validation, review and draft-to-public transitions
