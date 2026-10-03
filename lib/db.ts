@@ -10,16 +10,23 @@ export const withDBRequest = <T>(fn: () => Promise<T>) => requestScope.run(new S
 const state = globalThis as unknown as { artDB?: Promise<DB> };
 
 async function blobAdapter(): Promise<DB> {
-  const { get, put, BlobPreconditionFailedError } = await import('@vercel/blob');
+  const { get, head, put, BlobNotFoundError, BlobPreconditionFailedError } = await import('@vercel/blob');
   const { createSnapshotDB, SnapshotConflictError } = await import('./blob-store-db');
   const pathname='sillapa/coursework-data.json';
   return createSnapshotDB({
     read:async etag=>{
-      const stored=await get(pathname,{access:'private',useCache:false,...(etag?{ifNoneMatch:etag}:{})});
-      if(!stored)return null;
-      const currentETag=stored.blob.etag||etag;
-      if(!currentETag)throw new Error('Database response is missing its version');
-      return {etag:currentETag,...(stored.stream?{snapshot:JSON.parse(await new Response(stored.stream as any).text())}:{})};
+      // Use the storage API version for writes, not a delivery/cache response ETag.
+      for(let attempt=0;attempt<4;attempt++){
+        let before;try{before=await head(pathname);}catch(error){if(error instanceof BlobNotFoundError)return null;throw error;}
+        if(!before.etag)throw new Error('Database response is missing its version');
+        if(before.etag===etag)return {etag};
+        const stored=await get(pathname,{access:'private',useCache:false});
+        if(!stored?.stream)continue;
+        const snapshot=JSON.parse(await new Response(stored.stream as any).text());
+        const after=await head(pathname);
+        if(before.etag===after.etag)return {etag:after.etag,snapshot};
+      }
+      throw new SnapshotConflictError('Database changed during read');
     },
     write:async(snapshot,etag)=>{
       try {const saved=await put(pathname,JSON.stringify(snapshot),{access:'private',contentType:'application/json',addRandomSuffix:false,allowOverwrite:!!etag,...(etag?{ifMatch:etag}:{})});return saved.etag;}
